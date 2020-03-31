@@ -1,0 +1,12 @@
+# default frontend configuration
+# env var replacements defined in .env file
+
+backEnd:
+  basePath: http://localhost:8079
+  path: api
+
+ui:
+  rootPath: issue-board/
+
+logging:
+  enableLogging: true

@@ -1,0 +1,20 @@
+- total count of issues and other stats...
+- archive date
+- upvote/downvote issue
+- edit issue
+- tag issues
+- filter by tag
+- sync filters (search bar/toggles)
+- ability to sort by creation date
+- ability to decide sorting criteria
+- document component naming convention
+- use diode pot actions
+- edit local script to make ui build optional
+- add confirmation dialog before deletion
+- ability to unarchive issues
+- create docker-compose with bind mounts for static content (valid use case ???)
+- nginx payload in access logs??
+- nginx env vars
+- extract variables from scss module
+- clean up assets in webpack build directory
+- find out how to support css blur across all browsers

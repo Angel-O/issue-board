@@ -1,0 +1,5 @@
+# Generated files by compose script,
+# (some of them are removed if the script completes normally this is just in case they don't get removed)
+
+.docker-compose.generated.yml
+.cached-tag.txt

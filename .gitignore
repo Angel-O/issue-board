@@ -1,0 +1,23 @@
+target/
+.idea/
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
+
+# Terraform
+.terraform/
+
+# VS code
+.metals/
+.bloop/
+project/metals.sbt
+.vscode/
+
+# dotenv-safe
+front-end/*.env
+
+# memory settings
+.jvmopts

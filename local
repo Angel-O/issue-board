@@ -1,0 +1,54 @@
+#!/bin/bash
+
+################################################## ----- Variables ---- ################################################
+
+LOCAL_DIR="local-compose"
+
+# shellcheck source=$LOCAL_DIR/variables.sh
+source "$LOCAL_DIR/variables.sh"
+
+# shellcheck source=$LOCAL_DIR/functions.sh
+source "$LOCAL_DIR/functions.sh"
+
+################################################## ------- Func ------- ################################################
+
+# will generate the build files used by the nginx container
+function uiBuild() {
+  echo "starting ui build..."
+  cd .. || exit && sbt ui-build
+}
+
+function launchServices() {
+  echo "starting up services..."
+  cd $LOCAL_DIR || exit && $DOCKER_COMMAND up --build --force-recreate -d --remove-orphans
+}
+
+################################################## ------- Boot ------- ################################################
+
+## parse args and move the cursor to read the subcommand (e.g. service name)
+parseCommandLineOptions "$@" && shift $((OPTIND -1))
+
+subCommand=$1
+
+TAG=$(readCachedTag)
+
+echo "backend image tag: $TAG"
+
+cd $LOCAL_DIR || exit
+
+# defensive clean up
+rm "$GENERATED_FILE" &> /dev/null
+$DOCKER_COMMAND down &> /dev/null
+
+SUBSTITUTION_PATTERNS="s/{tag}/$TAG/g"
+generateDockerComposeFile "$SUBSTITUTION_PATTERNS"
+
+# combine output in the same shell
+{ uiBuild && launchServices; }
+
+echo "running database init script..."
+$DOCKER_COMMAND exec db sh db-entrypoint.sh
+
+trap shutdown SIGINT
+
+keepShellAlive "$subCommand"

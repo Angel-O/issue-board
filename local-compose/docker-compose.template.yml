@@ -1,0 +1,35 @@
+version: "3.5"
+services:
+  ui:
+    build:
+      context: ../../issue-board
+      dockerfile: local-compose/ui/Dockerfile
+    image: "issue-board-ui:{tag}"
+    container_name: "ui"
+    ports:
+      - "7000:80"
+    depends_on:
+      - backend
+  backend:
+    image: "issue-board-backend:{tag}"
+    container_name: "backend"
+    ports:
+      - "8080"
+    environment:
+      - DB_ENDPOINT=http://db:8000
+    depends_on:
+      - db
+  db:
+    build:
+      context: ./db
+    image: "issue-board-db:{tag}"
+    container_name: "db"
+    ports:
+      - "8000"
+    volumes:
+      - issue_board_data:/home/dynamodblocal
+
+volumes:
+  issue_board_data:
+    driver: local
+    name: issue_board_data
