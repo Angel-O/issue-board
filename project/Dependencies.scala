@@ -30,10 +30,11 @@ object Dependencies {
         "com.github.japgolly.scalajs-react" %%% "extra"                % scalaJsReactVersion,
         "com.github.japgolly.scalacss"      %%% "core"                 % scalaCssVersion,
         "com.github.japgolly.scalacss"      %%% "ext-react"            % scalaCssVersion,
-        "io.suzaku"                         %%% "diode-react"          % "1.1.11",
+        "io.suzaku"                         %%% "diode-react"          % "1.1.11", //TODO watch out when upgrading to 1.1.14+
         "io.github.cquiroz"                 %%% "scala-java-time"      % scalaJavaTimeVersion,
         "io.github.cquiroz"                 %%% "scala-java-time-tzdb" % scalaJavaTimeVersion,
-        "com.outr"                          %%% "profig"               % "2.3.8"
+        "com.outr"                          %%% "profig"               % "2.3.8", //TODO watch out when upgrading to 3.x.x
+        "org.scala-lang.modules"            %%% "scala-xml"            % "1.3.0"
       )
     )
 
