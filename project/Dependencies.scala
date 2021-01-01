@@ -61,8 +61,8 @@ object Dependencies {
 
   object Backend {
 
-    val http4sVersion = "0.21.1"
-    val zioVersion    = "1.0.2"
+    val http4sVersion = "0.21.14"
+    val zioVersion    = "1.0.3"
 
     val deps = Def.setting(
       Seq(
@@ -72,11 +72,11 @@ object Dependencies {
         "org.http4s"             %% "http4s-circe"        % http4sVersion,
         "org.typelevel"          %% "cats-core"           % "2.0.0",
         "dev.zio"                %% "zio"                 % zioVersion,
-        "dev.zio"                %% "zio-logging-slf4j"   % "0.5.3",
-        "ch.qos.logback"         % "logback-classic"      % "1.2.3",
+        "dev.zio"                %% "zio-logging-slf4j"   % "0.5.4",
         "dev.zio"                %% "zio-interop-cats"    % "2.2.0.1",
-        "software.amazon.awssdk" % "dynamodb"             % "2.10.64",
-        "com.github.pureconfig"  %% "pureconfig"          % "0.12.2"
+        "com.github.pureconfig"  %% "pureconfig"          % "0.14.0",
+        "ch.qos.logback"         % "logback-classic"      % "1.2.3",
+        "software.amazon.awssdk" % "dynamodb"             % "2.15.56"
       )
     )
   }

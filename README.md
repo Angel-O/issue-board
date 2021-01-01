@@ -2,6 +2,8 @@
 
 ZIO/cats-effect/scala.js playground
 
+Set entry point on build.sbt: ZBoot => ZIO, Boot => Cats effect (currently they do the same thing)
+
 ## Requirements
 
 - docker

@@ -28,8 +28,8 @@ object ZHttpServer extends Http4sDsl[Task] {
         )
 
         getExecutionCtx >>= { ec =>
-          BlazeServerBuilder[Task]
-            .withExecutionContext(ec)
+          BlazeServerBuilder
+            .apply[Task](ec)
             .withNio2(true)
             .withServiceErrorHandler(errorHandler)
             .withHttpApp(httpApp)

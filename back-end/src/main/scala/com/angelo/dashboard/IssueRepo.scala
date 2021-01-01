@@ -1,6 +1,5 @@
 package com.angelo.dashboard
 
-import Issue.LifeCycle
 import io.circe.syntax._
 import cats.implicits._
 import com.angelo.dashboard.Issue.LifeCycle
