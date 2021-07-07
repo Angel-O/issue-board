@@ -1,6 +1,6 @@
 - total count of issues and other stats...
 - archive date
-- upvote/downvote issue
+- upvote/down-vote issue
 - edit issue
 - tag issues
 - filter by tag
@@ -18,3 +18,30 @@
 - extract variables from scss module
 - clean up assets in webpack build directory
 - find out how to support css blur across all browsers
+- ZIssue Repo - retrieveIssues: Stream and Log errors
+- docker builder prune (clear cache ...add to docs)
+- find alternative configuration library for front end
+- consolidate configuration (needs to be changed in too many places)
+- modularize routes
+- dependency update order: scala, scala.js, scalajsbundler, sbt
+- homogeneous logging
+- add client timeouts
+- add unit tests
+- try dynamodb scala libraries (https://www.reddit.com/r/scala/comments/k0vyvf/alternatives_to_scanamo_for_dynamodb/)
+- add health-check (e.g. restart app if db health-check fails at start app...)
+- command scoping improvements when using 2 shells: dev command should not start db when run against frontEnd project,
+    similarly backend shouldn't be listening for ui source code changes (if not possible use hot reload commands)
+- rewrite shell scripts using ammonite
+- dynamodb create secondary index to count not archived issues using scan limit parameter
+- restore unsafe program (see comments in issue repo) and test sandboxing the app
+- finalizer for ZHttpServer
+- change docker-compose.template.yml file name (and references in scripts) to be compatible with Docker dashboard
+- ability to change node version from sbt
+- use postgres and redis
+- add nvm to docs, add .env file to docs
+- explore this (https://github.com/Tapad/sbt-docker-compose) or this (https://github.com/timo-schmid/sbt-docker-run) or
+ even this (https://github.com/marcuslonnberg/sbt-docker)
+ - add monitoring
+ - add gatling load tests
+ - build ui remote logger
+ - build backend logger facade

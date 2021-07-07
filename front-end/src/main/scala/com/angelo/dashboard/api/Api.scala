@@ -40,7 +40,7 @@ object Api {
       .asAsyncCallback
       .void
 
-  private[api] def DELETE(url: String) =
+  private[api] def DELETE(url: String): AsyncCallback[Unit] =
     Ajax
       .apply("DELETE", url)
       .setRequestContentTypeJsonUtf8

@@ -1,19 +1,17 @@
 # issue-board
 
-ZIO/cats-effect/scala.js playground
-
-Set entry point on build.sbt: ZBoot => ZIO, Boot => Cats effect (currently they do the same thing)
+ZIO/scala.js playground
 
 ## Requirements
 
-- docker
-- node.js/npm/yarn (they were already installed on my machine, you might have to install them separately)
+- docker (needs to be up and running before launching the project)
+- node.js/npm/yarn (recommended node version: `14.17.1`, the shell the project is launched from must use this version)
 - sbt
 - scala (depends on java8)
 
 ## Running modes
 
-- Development mode
+- Development mode (backend and front end will reload after each change)
 - Docker
 - Individual services
 - A/B testing
@@ -72,7 +70,8 @@ If you need to make changes, edit the template rather than the generated file.
 - the dynamodb data is persisted in a docker volume even after the services are shut down or the machine rebooted. This 
 is to avoid having to recreate data all the time during development (yes we could have a script to generate data...). 
  If you want to get rid of the volume you'll have to manually remove it with the following command:
-    `docker volume rm issue_board_data`
+    `docker volume rm issue_board_data` (Alternatively you could restart the sbt shell and run the `exit` command, 
+    or simply run `sbt exit`)
 
 
 ##### example usage
@@ -105,7 +104,7 @@ You can even run services in parallel (docker mode vs dev mode). This can be use
 To do so, you should run the `sh local` script first and then the `sbt dev` command on another terminal. This is because 
 the `sh local` will clear the build directory which contains assets monitored by sbt when you run `sbt dev` (which uses
 watch mode, or hot reload, or refresh mode...whatever you want to call it). If you invert the order of the commands
-you will see lots of errors on the terminal where you run the `sbt dev`command.
+you will see lots of errors on the terminal where you run the `sbt dev` command.
 
 
 So the workflow in this scenario would be:
@@ -125,4 +124,5 @@ So the workflow in this scenario would be:
 - Bundling npm dependencies and webpack config [scalajs-bundler](https://scalacenter.github.io/scalajs-bundler/)
 - Asset management, config, development and more: [webpack docs](https://webpack.js.org/)
 - Tooling: [workbench plugin](https://github.com/lihaoyi/workbench) - NO LONGER USED (replaced by webpack)
-- Async & concurrent functional programming [zio](https://zio.dev/) & [cats](https://typelevel.org/cats-effect/)
+- Async & concurrent functional programming [zio](https://zio.dev/) & [cats-effect](https://typelevel.org/cats-effect/) - (cats-effect NOT CURRENTLY USED)
+- Functional http server and client [http4s](https://http4s.org/)

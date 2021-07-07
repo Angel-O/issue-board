@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# repliclates settings in decker-compose.template.yml file
+# replicates settings in decker-compose.template.yml file
 # note: the context in the docker build command is passed as a parameter
-# because this script is executed in the build.sbt file (in that scenario it is relative to the root of the project)
+# because this script is executed from the build.sbt file (in that scenario it is relative to the root of the project)
 
 IMAGE_NAME="dev-db:latest"
 

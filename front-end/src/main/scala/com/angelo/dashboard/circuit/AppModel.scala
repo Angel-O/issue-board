@@ -1,12 +1,10 @@
 package com.angelo.dashboard.circuit
 
-import com.angelo.dashboard.Issue
 import com.angelo.dashboard.circuit.AppModel.IssuesLookup
 import com.angelo.dashboard.Issue
 import io.circe.Encoder
 import io.circe.generic.semiauto.deriveEncoder
 
-import scala.annotation.tailrec
 import scala.collection.immutable._
 
 case class AppModel(issuesLookup: IssuesLookup)
@@ -38,9 +36,10 @@ case object AppModel {
 
     def ids: List[IssueId] = lookup.keys.toList
 
-    private[IssuesOps] def sortedByTitle = lookup.toSeq.sortBy {
-      case (_, issue) => issue.title.toLowerCase
-    }
+    private[IssuesOps] def sortedByTitle =
+      lookup.toSeq.sortBy {
+        case (_, issue) => issue.title.toLowerCase
+      }
   }
 
   // for debug purposes

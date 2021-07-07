@@ -1,4 +1,4 @@
-package com.angelo.dashboard.utils
+package com.angelo.dashboard
 
 import java.io.File
 
@@ -11,10 +11,8 @@ import scala.xml.{Elem, Node, Text, XML}
  * To run it from Intellij edit the run configuration pointing the working directory
  * to the directory this file is in (alternatively you can edit the file path specified in the run method
  * such that it is relative to the default working directory (which should be root of the multi-project))
- * You need the 'extends App' bit to run it (coometed out so it doesn't clash with the Main class.
- * There is a better way to fix this...coming soon
- * */
-object Converter /* extends App */ {
+ */
+object Converter extends App {
 
   def quoteString(s: String) =
     s""""${s.replace("\n", "\\n").replace("\"", "\\\"")}""""
@@ -24,11 +22,11 @@ object Converter /* extends App */ {
   def toVDOM(node: Node, indentLevel: Int = 0): Option[String] =
     node match {
       case elem: Elem =>
-        val attrArgs =
+        val attrArgs  =
           elem.attributes.asAttrMap.map {
             case (key, value) =>
               val unsupported = Set("label", "selectedindex", "tabindex", "onclick", "onchange", "style", "onkeyup")
-              val attr =
+              val attr        =
                 key.toLowerCase match {
                   case s if s.contains("-") || unsupported.contains(s) => "VdomAttr(" + quoteString(s) + ")"
                   case "class"                                         => "^.cls"
@@ -39,7 +37,7 @@ object Converter /* extends App */ {
               attr + " := " + quoteString(value)
           }.toSeq
         val childArgs = elem.child.map(toVDOM(_, indentLevel + 1))
-        val res =
+        val res       =
           "<." + elem.label +
             "(\n" + indentSpaces(indentLevel + 1) +
             (attrArgs ++ childArgs.flatten).mkString(",\n" + indentSpaces(indentLevel + 1)) +
@@ -58,6 +56,6 @@ object Converter /* extends App */ {
       converted
     }.foreach(println)
 
-  run("front-end/src/main/scala/com/angelo/dashboard/utils/source.html")
+  run("miscellaneous/src/main/scala/com/angelo/dashboard/source.html")
 
 }
