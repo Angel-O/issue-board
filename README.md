@@ -126,3 +126,4 @@ So the workflow in this scenario would be:
 - Tooling: [workbench plugin](https://github.com/lihaoyi/workbench) - NO LONGER USED (replaced by webpack)
 - Async & concurrent functional programming [zio](https://zio.dev/) & [cats-effect](https://typelevel.org/cats-effect/) - (cats-effect NOT CURRENTLY USED)
 - Functional http server and client [http4s](https://http4s.org/)
+- Create react app scala [g8 template](https://github.com/shadaj/create-react-scala-app.g8)  
