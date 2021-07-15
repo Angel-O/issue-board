@@ -1,25 +1,30 @@
 package com.angelo.dashboard
 
+import com.angelo.dashboard.layers.ZAppLayers
+import com.angelo.dashboard.layers.ZAppLayers._
+import com.angelo.dashboard.logging.Logs.Logs
+import com.angelo.dashboard.programs.ZPrograms
 import zio.Exit.Failure
 import zio._
 import zio.interop.catz.CatsApp
+import zio.logging.Logging.{error, info}
 
-object ZBoot extends CatsApp with ZEnvironments {
+object ZBoot extends CatsApp with ZAppLayers {
 
   override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] = {
 
-    val program: RIO[ProgramDependencies, Unit] =
-      ZIO.collectAllPar_(ZHttpServer.serveRequests :: ZNotifier.scheduleNotifications :: Nil)
+    val app: RIO[AppDependencies, Unit] =
+      ZIO.collectAllPar_(ZPrograms.programs)
 
-    program
-      .provideLayer(programDeps)
+    app.untraced
       .onExit(finalizer)
+      .provideLayer(appDependencies)
       .exitCode
   }
 
-  private def finalizer(exit: Exit[Throwable, Unit]): UIO[Unit] =
+  private def finalizer(exit: Exit[Throwable, Unit]): URIO[Logs, Unit] =
     ZIO.whenCase(exit) {
-      case Failure(c) if c.died || c.failed => error("App exited unexpectedly")
+      case Failure(c) if c.died || c.failed => error("App exited unexpectedly", c)
       case _                                => info("App terminated")
     }
 }

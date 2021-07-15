@@ -1,28 +1,17 @@
 package com.angelo
 
-import zio.blocking.Blocking
-import zio.logging.slf4j.Slf4jLogger
-import zio.logging.{Logger, Logging}
-import zio.{Cause, UIO, ULayer, URIO, ZIO}
+import zio.{CanFail, ZIO}
 
-import scala.concurrent.ExecutionContext
+import scala.reflect.ClassTag
 
 package object dashboard {
+  type =?>[-A, +B] = PartialFunction[A, B]
 
-  object Logs {
-    type Service = Logger[String]
-    val loggingLayer: ULayer[Logging] = Slf4jLogger.make((_, line) => line)
+  /** Same as [[zio.ZIO.ZioRefineToOrDieOps]], but has the environment set to [[Any]] (only needed to avoid intelliJ
+   * error highlighting) */
+  implicit final class ZioRefineToOrDieOpsAny[E <: Throwable, A](private val self: ZIO[Any, E, A]) extends AnyVal {
 
-    // accessor (provided)
-    val getLogger: UIO[Logs.Service] = ZIO.service[Logs.Service].provideLayer(loggingLayer)
+    def refineToOrDie[E1 <: E: ClassTag](implicit ev: CanFail[E]): ZIO[Any, E1, A] =
+      self.refineOrDie { case e: E1 => e }
   }
-
-  // global accessors
-  def info(msg: String): UIO[Unit]                  = Logs.getLogger.flatMap(_.info(msg))
-  def error(msg: String): UIO[Unit]                 = Logs.getLogger.flatMap(_.error(msg))
-  def error(msg: String, err: Throwable): UIO[Unit] = Logs.getLogger.flatMap(_.error(msg, Cause.fail(err)))
-
-  val getBlocking: URIO[Blocking, Blocking.Service] = ZIO.service[Blocking.Service]
-
-  val getExecutionCtx: UIO[ExecutionContext] = ZIO.runtime[Any].map(_.platform.executor.asEC)
 }

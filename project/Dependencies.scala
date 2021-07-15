@@ -1,28 +1,31 @@
-import sbt._
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
+import sbt._
 
 object Dependencies {
 
   object Shared {
 
-    val circeVersion = "0.13.0"
+    val circeVersion = "0.14.1"
+    val catsVersion  = "2.6.1"
 
     val deps = Def.setting(
       Seq(
-        "io.circe" %% "circe-core"    % circeVersion,
-        "io.circe" %% "circe-generic" % circeVersion,
-        "io.circe" %% "circe-parser"  % circeVersion,
-        "io.circe" %% "circe-literal" % circeVersion
+        "io.circe"      %%% "circe-core"           % circeVersion,
+        "io.circe"      %%% "circe-generic"        % circeVersion,
+        "io.circe"      %%% "circe-generic-extras" % circeVersion,
+        "io.circe"      %%% "circe-parser"         % circeVersion,
+        "io.circe"      %%% "circe-literal"        % circeVersion,
+        "org.typelevel" %%% "cats-core"            % catsVersion
       )
     )
   }
 
   object FrontEnd {
 
-    val reactVersion         = "16.7.0"
-    val scalaJsReactVersion  = "1.7.2"
-    val scalaCssVersion      = "0.6.1"
-    val scalaJavaTimeVersion = "2.0.0"
+    val reactVersion         = "17.0.2"
+    val scalaJsReactVersion  = "1.7.7"
+    val scalaCssVersion      = "0.7.0"
+    val scalaJavaTimeVersion = "2.2.2"
 
     val deps = Def.setting(
       Seq(
@@ -30,11 +33,10 @@ object Dependencies {
         "com.github.japgolly.scalajs-react" %%% "extra"                % scalaJsReactVersion,
         "com.github.japgolly.scalacss"      %%% "core"                 % scalaCssVersion,
         "com.github.japgolly.scalacss"      %%% "ext-react"            % scalaCssVersion,
-        "io.suzaku"                         %%% "diode-react"          % "1.1.11", //TODO watch out when upgrading to 1.1.14+
+        "io.suzaku"                         %%% "diode-react"          % "1.1.14", // has a dependency on `scalaJsReactVersion`
         "io.github.cquiroz"                 %%% "scala-java-time"      % scalaJavaTimeVersion,
         "io.github.cquiroz"                 %%% "scala-java-time-tzdb" % scalaJavaTimeVersion,
-        "com.outr"                          %%% "profig"               % "2.3.8", //TODO watch out when upgrading to 3.x.x
-        "org.scala-lang.modules"            %%% "scala-xml"            % "1.3.0"
+        "com.outr"                          %%% "profig"               % "2.3.8" // yaml no longer supported on version 3.x.x (js)
       )
     )
 
@@ -62,8 +64,8 @@ object Dependencies {
 
   object Backend {
 
-    val http4sVersion = "0.21.14"
-    val zioVersion    = "1.0.3"
+    val http4sVersion = "0.21.24"
+    val zioVersion    = "1.0.9"
 
     val deps = Def.setting(
       Seq(
@@ -71,14 +73,18 @@ object Dependencies {
         "org.http4s"             %% "http4s-blaze-server" % http4sVersion,
         "org.http4s"             %% "http4s-blaze-client" % http4sVersion,
         "org.http4s"             %% "http4s-circe"        % http4sVersion,
-        "org.typelevel"          %% "cats-core"           % "2.0.0",
         "dev.zio"                %% "zio"                 % zioVersion,
-        "dev.zio"                %% "zio-logging-slf4j"   % "0.5.4",
-        "dev.zio"                %% "zio-interop-cats"    % "2.2.0.1",
-        "com.github.pureconfig"  %% "pureconfig"          % "0.14.0",
+        "dev.zio"                %% "zio-logging-slf4j"   % "0.5.11",
+        "dev.zio"                %% "zio-interop-cats"    % "2.5.1.0",
+        "com.github.pureconfig"  %% "pureconfig"          % "0.16.0",
         "ch.qos.logback"         % "logback-classic"      % "1.2.3",
         "software.amazon.awssdk" % "dynamodb"             % "2.15.56"
       )
     )
+  }
+
+  object Miscellaneous {
+
+    val deps = Def.setting(Seq("org.scala-lang.modules" %%% "scala-xml" % "2.0.0"))
   }
 }

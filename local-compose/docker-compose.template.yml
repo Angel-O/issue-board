@@ -8,15 +8,34 @@ services:
     container_name: "ui"
     ports:
       - "7000:80"
+    environment:
+        - BACKEND_HOST=backend
+        - BACKEND_PORT=8080
+        - API_VERSION=v1
     depends_on:
       - backend
   backend:
-    image: "issue-board-backend:{tag}"
+    image: "angeloop/issue-board-backend:{tag}"
     container_name: "backend"
     ports:
       - "8080"
     environment:
+      - DB_ISSUES_TABLE=core-retro-issues-v2
       - DB_ENDPOINT=http://db:8000
+      - DB_CLIENT_TIMEOUT=2 seconds
+      - SERVER_HTTP_HOST=0.0.0.0
+      - SERVER_HTTP_PORT=8080
+      - SERVER_CONNECTION_IDLE_TIMEOUT=4 seconds
+      - SERVER_RESPONSE_TIMEOUT=3 seconds
+      - SERVER_ALLOWED_ORIGIN=http://localhost:7000
+      - SLACK_ENDPOINT=https://hooks.slack.com/services
+      - SLACK_TOKEN=dummy-token
+      - MINIMUM_ACTIVE_ISSUES=3
+      - DEVELOPMENT_MODE=false
+      - SCHEDULER_INITIAL_DELAY=10 seconds
+      - SCHEDULER_LOOP_INTERVAL=4 seconds # 2 minutes
+      - SCHEDULER_BACKOFF_BASE_PERIOD=5 seconds # 1 minute
+      - SCHEDULER_BACKOFF_RESET_PERIOD=20 seconds # 1 hour
     depends_on:
       - db
   db:

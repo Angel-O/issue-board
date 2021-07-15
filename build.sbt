@@ -5,10 +5,11 @@ import scala.language.postfixOps
 import scala.sys.process._
 
 val baseVersion     = "0.0.1"
-val scala213        = "2.13.1"
+val scala213        = "2.13.6"
 val projectName     = "issue-board"
 val dbContainerName = s"$projectName-dev-db"
-val startDbProcess  = Process(s"sh local-compose/db/start-db.sh local-compose/db $dbContainerName")
+val dbScriptFolder  = "local-compose/db"
+val startDbProcess  = Process(s"sh $dbScriptFolder/start-db.sh $dbScriptFolder $dbContainerName")
 val killDbProcess   = Process(s"docker container rm -f $dbContainerName")
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
@@ -28,7 +29,7 @@ addCommandAlias("dev", (Commands.RunDb + Commands.StopStartWDS + Commands.DevMod
 addCommandAlias("down", Commands.TearDown.value)
 
 lazy val root = (project in file("."))
-  .aggregate(frontEnd, backEnd, shared.jvm, shared.js)
+  .aggregate(frontEnd, backEnd, shared.jvm, shared.js, misc)
   .disablePlugins(RevolverPlugin)
   .settings(
     name := projectName,
@@ -45,21 +46,21 @@ lazy val frontEnd = (project in file("front-end"))
   .settings(
     useYarn := true,
     scalaJSUseMainModuleInitializer := true,
-    scalaJSLinkerConfig in fastOptJS ~= { _.withOptimizer(false) },
+    fastOptJS / scalaJSLinkerConfig ~= { _.withOptimizer(false) },
+    fastOptJS / webpackConfigFile := Some(webpackDir.value / "webpack-fastopt.config.js"),
+    fastOptJS / webpackBundlingMode := BundlingMode.LibraryOnly(), //disable on prod
+    fastOptJS / webpackDevServerExtraArgs := Seq("--inline", "--hot", "--env.ignoreEnvVarFile=false"),
+    fastOptJS / webpackDevServerPort := 12345,
+    Compile / npmDependencies ++= Dependencies.FrontEnd.npmDeps.value,
+    Compile / npmDevDependencies ++= Dependencies.FrontEnd.npmDevDeps.value,
     libraryDependencies ++= Dependencies.FrontEnd.deps.value,
-    npmDependencies in Compile ++= Dependencies.FrontEnd.npmDeps.value,
-    npmDevDependencies in Compile ++= Dependencies.FrontEnd.npmDevDeps.value,
     startWds := (Compile / fastOptJS / startWebpackDevServer).value,
     stopWds := (Compile / fastOptJS / stopWebpackDevServer).value,
     devMode := (Compile / fastOptJS / webpack).value,
-    version in webpack := "4.43.0",
-    version in startWebpackDevServer := "3.11.0",
+    startWebpackDevServer / version := "3.11.0",
+    webpack / version := "4.43.0",
     webpackDir := baseDirectory.value / "webpack",
     webpackResources := webpackDir.value * "*",
-    webpackConfigFile in fastOptJS := Some(webpackDir.value / "webpack-fastopt.config.js"),
-    webpackBundlingMode in fastOptJS := BundlingMode.LibraryOnly(), //disable on prod
-    webpackDevServerExtraArgs in fastOptJS := Seq("--inline", "--hot", "--env.ignoreEnvVarFile=false"),
-    webpackDevServerPort in fastOptJS := 12345,
     clean := clean.dependsOn(stopWds).value
   )
 
@@ -67,18 +68,18 @@ lazy val backEnd = (project in file("back-end"))
   .dependsOn(shared.jvm)
   .enablePlugins(JavaAppPackaging, EcrPlugin)
   .settings(
-    mainClass in Compile := Some("com.angelo.dashboard.ZBoot"),
-    javaOptions in reStart += "-Xmx2g",
+    Compile / mainClass := Some("com.angelo.dashboard.ZBoot"),
+    reStart / javaOptions += "-Xmx2g",
     devMode := (Compile / reStart).toTask("").value,
+    debugSettings := Revolver.enableDebugging(port = 5050, suspend = false).init.value,
     clean := clean.dependsOn(killDb).value,
     dockerSettings,
-    logLevel in Docker := Level.Info,
-    dockerEnvVars := awsCreds,
+    dockerEnvVars := awsCreds,    // Docker / publishLocal / dockerEnvVars := awsCreds, not working...
     libraryDependencies ++= Dependencies.Backend.deps.value,
-    runDb := { startDbProcess run (thisProjectRef / streams).value.log },
-    killDb := { killDbProcess ! (thisProjectRef / streams).value.log },
+    runDb := startDbProcess run (thisProjectRef / streams).value.log,
+    killDb := killDbProcess ! (thisProjectRef / streams).value.log,
     Global / cancelable := false, //https://github.com/sbt/sbt/issues/5226
-    Global / onLoad := (onLoad in Global).value andThen { state =>
+    Global / onLoad := (Global / onLoad).value andThen { state =>
       val onExit = ExitHook(killDbProcess ! ProcessLogger(out => state.log.info(s"removed $out container"), _ => ()))
       state.copy(exitHooks = state.exitHooks + onExit)
     }
@@ -88,18 +89,21 @@ lazy val shared = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .settings(libraryDependencies ++= Dependencies.Shared.deps.value)
 
+lazy val misc = (project in file("miscellaneous"))
+  .settings(libraryDependencies ++= Dependencies.Miscellaneous.deps.value)
+
 lazy val dockerSettings = Seq(
-  dockerLabels := Map(baseVersion -> baseVersion),
-  dockerExposedPorts in Docker := Seq(8080),
-  daemonUser in Docker := "daemon",
-  dockerBaseImage := "openjdk:11.0.4-jdk",
-  dockerRepository := Some("angeloop"),
-  (packageName in Docker) := s"$projectName-backend",
-  region in Ecr := Region.getRegion(Regions.EU_WEST_2),
-  repositoryName in Ecr := (packageName in Docker).value,
-  version in Docker := baseVersion,
-  localDockerImage in Ecr := (dockerRepository in Docker).value.get + "/" + (packageName in Docker).value + ":" + (version in Docker).value,
-  login in Ecr := ((login in Ecr) dependsOn (createRepository in Ecr)).value,
-  push in Ecr := ((push in Ecr) dependsOn (publishLocal in Docker, login in Ecr)).value,
-  repositoryTags in Ecr := Seq(baseVersion)
+  Docker / daemonUser := "daemon",
+  Docker / packageName := s"$projectName-backend",
+  Docker / version := baseVersion,
+  Docker / dockerExposedPorts := Seq(8080),
+  Docker / dockerLabels := Map(baseVersion -> baseVersion),
+  Docker / dockerBaseImage := "openjdk:11.0.4-jdk",
+  Docker / dockerRepository := Some("angeloop"),
+  Ecr / region := Region.getRegion(Regions.EU_WEST_2),
+  Ecr / repositoryName := (Docker / packageName).value,
+  Ecr / localDockerImage := (Docker / dockerRepository).value.get + "/" + (Docker / packageName).value + ":" + (Docker / version).value,
+  Ecr / login := ((Ecr / login) dependsOn (Ecr / createRepository)).value,
+  Ecr / push := ((Ecr / push) dependsOn (Docker / publishLocal, Ecr / login)).value,
+  Ecr / repositoryTags := Seq(baseVersion)
 )

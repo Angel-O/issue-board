@@ -1,6 +1,5 @@
 package com.angelo.dashboard.views.Home
 
-import com.angelo.dashboard.styling.GlobalStyles
 import japgolly.scalajs.react.ScalaComponent
 import japgolly.scalajs.react.component.Scala.Unmounted
 import com.angelo.dashboard.CssSettings._
@@ -45,7 +44,7 @@ object Home {
 
     val showcase = style(
       &.after(
-        content := "''",
+        content.openQuote,
         viewHeight,
         display.block,
         width(100.%%),

@@ -1,6 +1,5 @@
 package com.angelo.dashboard.circuit
 
-import com.angelo.dashboard.Issue
 import com.angelo.dashboard.circuit.IssueHandler.IssuesFetched
 import diode._
 import com.angelo.dashboard.Issue

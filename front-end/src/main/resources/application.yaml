@@ -2,8 +2,8 @@
 # env var replacements defined in .env file
 
 backEnd:
-  basePath: http://localhost:8079
-  path: api
+  basePath: http://localhost:8080
+  path: api/v1
 
 ui:
   rootPath: issue-board/

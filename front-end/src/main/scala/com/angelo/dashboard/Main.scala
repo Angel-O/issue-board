@@ -10,7 +10,7 @@ import org.scalajs.dom.document
 
 object Main extends App {
 
-  AppCircuit.addProcessor(new LoggingProcessor(AppConfig.loggingConfig.enableLogging))
+  AppCircuit.addProcessor(LoggingProcessor(AppConfig.loggingConfig.enableLogging))
 
   StyleInitializer.initStyleSheets()
 
