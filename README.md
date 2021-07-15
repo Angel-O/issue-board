@@ -8,6 +8,8 @@ ZIO/scala.js playground
 - node.js/npm/yarn (recommended node version: `14.17.1`, the shell the project is launched from must use this version)
 - sbt
 - scala (depends on java8)
+- `.env` file at the root of the front-end project (there's a `.env.sample` file in the folder already. 
+  Just copy it and/or rename it to `.env`)
 
 ## Running modes
 
