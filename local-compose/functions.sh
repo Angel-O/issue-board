@@ -11,9 +11,9 @@ function shutdown() {
 
 function tailLogs() {
   service=$1
-  if [[ $service == "all" ]]
+  if [[ $service == "$ALL_CONTAINERS" ]]
   then
-    $DOCKER_COMMAND logs -f backend db ui
+    $DOCKER_COMMAND logs -f "$CONTAINERS"
   else
     $DOCKER_COMMAND logs -f "$service"
   fi
@@ -28,7 +28,7 @@ function silent() {
 function keepShellAlive() {
   mode=$1
   case $mode in
-    backend | db | ui | all) tailLogs "$mode"
+    "$UI_CONTAINER" | "$BACKEND_CONTAINER" | "$DB_CONTAINER" | "$ALL_CONTAINERS") tailLogs "$mode"
       ;;
     *) silent
       ;;
@@ -55,13 +55,13 @@ function cacheTag() {
 }
 
 function usage() {
-  echo "USAGE: local [-b] [ui | backend | db | all]"
+  echo "USAGE: local [-b] [$UI_CONTAINER | $BACKEND_CONTAINER | $DB_CONTAINER | $ALL_CONTAINERS]"
 }
 
 function boot() {
   buildBackend=$1
   if [ "$buildBackend" ]; then
-    echo "building backend local image...";
+    echo "building $BACKEND_CONTAINER local image...";
     containerTag=$(buildAndReadBackendProjectTag);
     cacheTag "$containerTag"
   fi

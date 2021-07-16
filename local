@@ -14,7 +14,7 @@ source "$LOCAL_DIR/functions.sh"
 
 # will generate the build files used by the nginx container
 function uiBuild() {
-  echo "starting ui build..."
+  echo "starting $UI_CONTAINER build..."
   cd .. || exit && sbt ui-build
 }
 
@@ -32,7 +32,7 @@ subCommand=$1
 
 TAG=$(readCachedTag)
 
-echo "backend image tag: $TAG"
+echo "$BACKEND_CONTAINER image tag: $TAG"
 
 cd $LOCAL_DIR || exit
 
@@ -46,7 +46,7 @@ generateDockerComposeFile "$SUBSTITUTION_PATTERNS"
 # combine output in the same shell
 { uiBuild && launchServices; }
 
-echo "running database init script..."
+echo "running $DB_CONTAINER init script..."
 $DOCKER_COMMAND exec db sh db-entrypoint.sh
 
 trap shutdown SIGINT

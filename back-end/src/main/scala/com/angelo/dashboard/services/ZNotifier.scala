@@ -18,7 +18,7 @@ import scala.util.control.NoStackTrace
 
 object ZNotifier {
 
-  type ZNotifier = Has[ZNotifier.Service]
+  type ZNotifier = Has[Service]
 
   trait Service {
     def sendMessageToSlack: IO[NotifierError, Unit]

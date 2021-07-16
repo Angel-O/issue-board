@@ -13,7 +13,7 @@ import java.net.URI
 
 object ZDbClientProvider {
 
-  type ZDbClientProvider = Has[ZDbClientProvider.Service]
+  type ZDbClientProvider = Has[Service]
 
   trait Service {
     def asResource: TaskManaged[DynamoDbClient]
