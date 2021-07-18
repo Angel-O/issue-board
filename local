@@ -46,9 +46,6 @@ generateDockerComposeFile "$SUBSTITUTION_PATTERNS"
 # combine output in the same shell
 { uiBuild && launchServices; }
 
-echo "running $DB_CONTAINER init script..."
-$DOCKER_COMMAND exec db sh db-entrypoint.sh
-
 trap shutdown SIGINT
 
 keepShellAlive "$subCommand"

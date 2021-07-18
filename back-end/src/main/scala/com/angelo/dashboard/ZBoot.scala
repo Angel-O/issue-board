@@ -16,9 +16,10 @@ object ZBoot extends CatsApp with ZAppLayers {
     val app: RIO[AppDependencies, Unit] =
       ZIO.collectAllPar_(ZPrograms.programs)
 
-    app.untraced
+    app
       .onExit(finalizer)
       .provideLayer(appDependencies)
+      .untraced
       .exitCode
   }
 

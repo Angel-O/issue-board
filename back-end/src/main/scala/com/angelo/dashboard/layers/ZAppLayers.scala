@@ -14,8 +14,9 @@ import com.angelo.dashboard.http.ZIssueRoutes.ZIssueRoutes
 import com.angelo.dashboard.logging.Logs
 import com.angelo.dashboard.logging.Logs.Logs
 import com.angelo.dashboard.services.ZHttpServer.ZHttpServer
+import com.angelo.dashboard.services.ZIssueTableMaker.ZIssueTableMaker
 import com.angelo.dashboard.services.ZNotifier.ZNotifier
-import com.angelo.dashboard.services.{ZHttpServer, ZNotifier}
+import com.angelo.dashboard.services.{ZHttpServer, ZIssueTableMaker, ZNotifier}
 import zio.clock.Clock
 import zio.random.Random
 import zio.{Has, Runtime, TaskLayer, ULayer, ZEnv, ZLayer}
@@ -38,23 +39,27 @@ trait ZAppLayers extends ZDefaultLayers { rtm: Runtime[ZEnv] =>
   val httpClientLayer: ULayer[ZHttpClientProvider] = (executionEnvLayer ++ loggingLayer) >>> ZHttpClientProvider.live
   val routesLayer: TaskLayer[ZIssueRoutes]         = (executionEnvLayer ++ repoLayer) >>> ZIssueRoutes.live
 
-  val servicesSharedLayer: TaskLayer[ServicesShared] = executionEnvLayer ++ configLayer
+  // services
+  val servicesSharedLayer = executionEnvLayer ++ configLayer
+  val httpServerLayer     = (servicesSharedLayer ++ routesLayer ++ loggingLayer) >>> ZHttpServer.live
+  val notifierLayer       = (servicesSharedLayer ++ consoleLayer ++ repoLayer ++ httpClientLayer) >>> ZNotifier.live
+  val tableLayer          = (dbClientLayer ++ blockingLayer ++ configLayer) >>> ZIssueTableMaker.live
 
-  val httpServerLayer = (servicesSharedLayer ++ routesLayer ++ loggingLayer) >>> ZHttpServer.live
-  val notifierLayer   = (servicesSharedLayer ++ consoleLayer ++ repoLayer ++ httpClientLayer) >>> ZNotifier.live
-
+  // programs
   val serverLayer: TaskLayer[ServerEnvironment]       = httpServerLayer ++ loggingLayer
   val schedulerLayer: TaskLayer[SchedulerEnvironment] = notifierLayer ++ configAndLogsLayer ++ clockLayer ++ randomLayer
+  val tableMakerLayer: TaskLayer[ZIssueTableMaker]    = tableLayer ++ loggingLayer ++ clockLayer
 
-  val appDependencies: TaskLayer[AppDependencies] = serverLayer ++ schedulerLayer
+  // app
+  val appDependencies: TaskLayer[AppDependencies] = tableLayer ++ serverLayer ++ schedulerLayer
 }
 
 object ZAppLayers {
 
-  type RuntimeEnv           = Has[Runtime[ZEnv]]
-  type ServicesShared       = ExecutionEnvironment with ZConfig
-  type ConfigAndLogs        = ZConfig with Logs
-  type SchedulerEnvironment = ZNotifier with ConfigAndLogs with Clock with Random
-  type ServerEnvironment    = ZHttpServer with Logs
-  type AppDependencies      = SchedulerEnvironment with ServerEnvironment
+  type RuntimeEnv            = Has[Runtime[ZEnv]]
+  type ConfigAndLogs         = ZConfig with Logs
+  type SchedulerEnvironment  = ZNotifier with ConfigAndLogs with Clock with Random
+  type ServerEnvironment     = ZHttpServer with Logs
+  type TableMakerEnvironment = ZIssueTableMaker with Logs with Clock
+  type AppDependencies       = TableMakerEnvironment with SchedulerEnvironment with ServerEnvironment
 }

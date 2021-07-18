@@ -13,7 +13,7 @@ function tailLogs() {
   service=$1
   if [[ $service == "$ALL_CONTAINERS" ]]
   then
-    $DOCKER_COMMAND logs -f "$CONTAINERS"
+    $DOCKER_COMMAND logs -f "$UI_CONTAINER" "$BACKEND_CONTAINER" "$DB_CONTAINER"
   else
     $DOCKER_COMMAND logs -f "$service"
   fi

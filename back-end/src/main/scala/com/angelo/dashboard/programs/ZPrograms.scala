@@ -6,5 +6,7 @@ import zio.RIO
 object ZPrograms {
 
   val programs: List[RIO[AppDependencies, Unit]] =
-    ZServerProgram.serveHttpRequests :: ZSchedulerProgram.scheduleSlackNotifications :: Nil
+    ZTableMakerProgram.initTable ::
+      ZServerProgram.serveHttpRequests ::
+      ZSchedulerProgram.scheduleSlackNotifications :: Nil
 }
