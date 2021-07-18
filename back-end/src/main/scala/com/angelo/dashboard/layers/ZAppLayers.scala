@@ -43,15 +43,15 @@ trait ZAppLayers extends ZDefaultLayers { rtm: Runtime[ZEnv] =>
   val servicesSharedLayer = executionEnvLayer ++ configLayer
   val httpServerLayer     = (servicesSharedLayer ++ routesLayer ++ loggingLayer) >>> ZHttpServer.live
   val notifierLayer       = (servicesSharedLayer ++ consoleLayer ++ repoLayer ++ httpClientLayer) >>> ZNotifier.live
-  val tableLayer          = (dbClientLayer ++ blockingLayer ++ configLayer) >>> ZIssueTableMaker.live
+  val dbTableMakerLayer   = (dbClientLayer ++ blockingLayer ++ configLayer) >>> ZIssueTableMaker.live
 
   // programs
-  val serverLayer: TaskLayer[ServerEnvironment]       = httpServerLayer ++ loggingLayer
-  val schedulerLayer: TaskLayer[SchedulerEnvironment] = notifierLayer ++ configAndLogsLayer ++ clockLayer ++ randomLayer
-  val tableMakerLayer: TaskLayer[ZIssueTableMaker]    = tableLayer ++ loggingLayer ++ clockLayer
+  val tableMakerLayer: TaskLayer[TableMakerEnvironment] = dbTableMakerLayer ++ loggingLayer ++ clockLayer
+  val serverLayer: TaskLayer[ServerEnvironment]         = httpServerLayer ++ loggingLayer
+  val schedulerLayer: TaskLayer[SchedulerEnvironment]   = notifierLayer ++ configAndLogsLayer ++ clockLayer ++ randomLayer
 
   // app
-  val appDependencies: TaskLayer[AppDependencies] = tableLayer ++ serverLayer ++ schedulerLayer
+  val appDependencies: TaskLayer[AppDependencies] = dbTableMakerLayer ++ serverLayer ++ schedulerLayer
 }
 
 object ZAppLayers {
