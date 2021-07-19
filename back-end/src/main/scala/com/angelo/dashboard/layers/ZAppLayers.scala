@@ -28,10 +28,10 @@ trait ZAppLayers extends ZDefaultLayers { rtm: Runtime[ZEnv] =>
   val runtimeLayer: ULayer[RuntimeEnv]                = ZLayer.succeed(rtm)
   val executionEnvLayer: ULayer[ExecutionEnvironment] = runtimeLayer >>> ExecutionEnvironment.live
 
-  val configLayer: TaskLayer[ZConfig] = ZConfig.live
-  val loggingLayer: ULayer[Logs]      = Logs.live
+  val configLayer: ULayer[ZConfig] = ZConfig.live
+  val loggingLayer: ULayer[Logs]   = Logs.live
 
-  val configAndLogsLayer: TaskLayer[ConfigAndLogs] = configLayer ++ loggingLayer
+  val configAndLogsLayer: ULayer[ConfigAndLogs] = configLayer ++ loggingLayer
 
   val dbClientLayer: TaskLayer[ZDbClientProvider] = configAndLogsLayer >>> ZDbClientProvider.live
   val repoLayer: TaskLayer[ZIssueRepo]            = (dbClientLayer ++ blockingLayer ++ configAndLogsLayer) >>> ZIssueRepo.live

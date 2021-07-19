@@ -2,7 +2,7 @@ package com.angelo.dashboard.config
 
 import pureconfig.ConfigSource
 import pureconfig.generic.auto._
-import zio.{Has, TaskLayer, URIO, ZIO}
+import zio.{Has, ULayer, URIO, ZIO}
 
 import scala.concurrent.duration.Duration
 
@@ -30,8 +30,8 @@ object ZConfig {
   final case class SchedulerConfig(initialDelay: Duration, loopInterval: Duration, backoff: BackoffConfig)
   final case class BackoffConfig(basePeriod: Duration, resetPeriod: Duration)
 
-  val live: TaskLayer[ZConfig] =
-    ZIO.effect(ConfigSource.url(getClass.getResource("/application.conf")).loadOrThrow[AppConfig]).toLayer
+  val live: ULayer[ZConfig] =
+    ZIO.effect(ConfigSource.url(getClass.getResource("/application.conf")).loadOrThrow[AppConfig]).toLayer.orDie
 
   //accessors
   val getConfig: URIO[ZConfig, Service]                  = ZIO.service[Service]

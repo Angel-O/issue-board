@@ -32,7 +32,7 @@ subCommand=$1
 
 TAG=$(readCachedTag)
 
-echo "$BACKEND_CONTAINER image tag: $TAG"
+echo "project version: $TAG"
 
 cd $LOCAL_DIR || exit
 
