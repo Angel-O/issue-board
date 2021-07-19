@@ -42,5 +42,4 @@ object ZIssueTableMaker {
 
   // accessor
   val service: URIO[ZIssueTableMaker, Service] = ZIO.service[Service]
-
 }

@@ -11,14 +11,14 @@ object Logs {
 
   val live: ULayer[Logging] = Slf4jLogger.make((_, line) => line)
 
-  /** not used, playing around with zio-logging looking for a valid use case */
+  /** playing around with zio-logging looking for a valid use case */
   val liveAnnotated: ULayer[Logging] = {
-    val logFormat = "[ERROR OCCURRED: %s] %s"
+    val logFormat = "[EXCEPTION: %s] %s"
 
     Slf4jLogger.make { (context, line) =>
       context
         .get(LogAnnotation.Cause)
-        .collect { case Cause.Fail(err: Throwable) => err.getMessage }
+        .collect { case Cause.Fail(err: Throwable) => err.getClass.getSimpleName }
         .map(msg => logFormat.format(msg, line))
         .getOrElse(line)
     }

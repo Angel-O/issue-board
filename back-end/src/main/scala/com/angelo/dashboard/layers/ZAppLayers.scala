@@ -29,7 +29,7 @@ trait ZAppLayers extends ZDefaultLayers { rtm: Runtime[ZEnv] =>
   val executionEnvLayer: ULayer[ExecutionEnvironment] = runtimeLayer >>> ExecutionEnvironment.live
 
   val configLayer: ULayer[ZConfig] = ZConfig.live
-  val loggingLayer: ULayer[Logs]   = Logs.live
+  val loggingLayer: ULayer[Logs]   = Logs.liveAnnotated
 
   val configAndLogsLayer: ULayer[ConfigAndLogs] = configLayer ++ loggingLayer
 
