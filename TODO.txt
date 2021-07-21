@@ -21,7 +21,6 @@
 - docker builder prune (clear cache ...add to docs)
 - find alternative configuration library for front end
 - consolidate configuration (needs to be changed in too many places)
-- modularize routes
 - dependency update order: scala, scala.js, scalajsbundler, sbt
 - homogeneous logging
 - add client timeouts
