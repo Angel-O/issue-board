@@ -23,7 +23,7 @@ services:
       - DB_ISSUES_TABLE=core-retro-issues-v2
       - DB_TABLE_CREATION_MAX_ATTEMPTS=15
       - DB_ENDPOINT=http://db:8000
-      - DB_CLIENT_TIMEOUT=2 seconds
+      - DB_CLIENT_TIMEOUT=5 seconds
       - SERVER_HTTP_HOST=0.0.0.0
       - SERVER_HTTP_PORT=8080
       - SERVER_CONNECTION_IDLE_TIMEOUT=4 seconds
