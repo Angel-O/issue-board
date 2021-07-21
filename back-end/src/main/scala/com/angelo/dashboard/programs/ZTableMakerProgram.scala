@@ -23,7 +23,7 @@ object ZTableMakerProgram {
       .flatten
 
   private def runWithSchedule(task: Task[Unit], cfg: DynamoDbConfig): ZIO[ZLogger with Clock, TableCreationFail, Unit] =
-    task
+    (task <* info(s"table ${cfg.issueTable} created successfully"))
       .retry(retryPolicy(cfg))
       .foldM(recoverIfTableExists, _ => ZIO.unit)
 
