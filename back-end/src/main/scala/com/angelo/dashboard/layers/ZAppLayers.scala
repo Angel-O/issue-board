@@ -10,9 +10,9 @@ import com.angelo.dashboard.dao.ZIssueRepo.ZIssueRepo
 import com.angelo.dashboard.environment.ExecutionEnvironment
 import com.angelo.dashboard.environment.ExecutionEnvironment.ExecutionEnvironment
 import com.angelo.dashboard.http.ZBaseRoutes.ZBaseRoutes
-import com.angelo.dashboard.http.{ZBaseRoutes, ZIssueRoutes, ZRoutes}
 import com.angelo.dashboard.http.ZIssueRoutes.ZIssueRoutes
 import com.angelo.dashboard.http.ZRoutes.ZRoutes
+import com.angelo.dashboard.http.{ZBaseRoutes, ZIssueRoutes, ZRoutes}
 import com.angelo.dashboard.logging.ZLogger
 import com.angelo.dashboard.logging.ZLogger.ZLogger
 import com.angelo.dashboard.services.ZHttpServer.ZHttpServer
@@ -43,15 +43,15 @@ trait ZAppLayers extends ZDefaultLayers { rtm: Runtime[ZEnv] =>
   val repoLayer: TaskLayer[ZIssueRepo] = (dbClientLayer ++ blockingLayer ++ configAndLogsLayer) >>> ZIssueRepo.live
 
   // http
-  val baseRoutesLayer: TaskLayer[ZBaseRoutes]   = (executionEnvLayer ++ repoLayer) >>> ZBaseRoutes.live
+  val baseRoutesLayer: ULayer[ZBaseRoutes]      = executionEnvLayer >>> ZBaseRoutes.live
   val issueRoutesLayer: TaskLayer[ZIssueRoutes] = (executionEnvLayer ++ repoLayer) >>> ZIssueRoutes.live
   val httpAppLayer: TaskLayer[ZRoutes]          = (baseRoutesLayer ++ issueRoutesLayer) >>> ZRoutes.live
 
   // services
   val servicesSharedLayer = executionEnvLayer ++ configLayer
+  val dbTableMakerLayer   = (dbClientLayer ++ blockingLayer ++ configLayer) >>> ZIssueTableMaker.live
   val httpServerLayer     = (servicesSharedLayer ++ httpAppLayer ++ loggingLayer) >>> ZHttpServer.live
   val notifierLayer       = (servicesSharedLayer ++ consoleLayer ++ repoLayer ++ httpClientLayer) >>> ZNotifier.live
-  val dbTableMakerLayer   = (dbClientLayer ++ blockingLayer ++ configLayer) >>> ZIssueTableMaker.live
 
   // programs
   val tableMakerLayer: TaskLayer[TableMakerEnvironment] = dbTableMakerLayer ++ loggingLayer ++ clockLayer ++ configLayer
