@@ -69,16 +69,16 @@ object Dependencies {
 
     val deps = Def.setting(
       Seq(
-        "org.http4s"             %% "http4s-dsl"          % http4sVersion,
-        "org.http4s"             %% "http4s-blaze-server" % http4sVersion,
-        "org.http4s"             %% "http4s-blaze-client" % http4sVersion,
-        "org.http4s"             %% "http4s-circe"        % http4sVersion,
-        "dev.zio"                %% "zio"                 % zioVersion,
-        "dev.zio"                %% "zio-logging-slf4j"   % "0.5.11",
-        "dev.zio"                %% "zio-interop-cats"    % "2.5.1.0",
-        "com.github.pureconfig"  %% "pureconfig"          % "0.16.0",
-        "ch.qos.logback"         % "logback-classic"      % "1.2.3",
-        "software.amazon.awssdk" % "dynamodb"             % "2.15.56"
+        "org.http4s"            %% "http4s-dsl"          % http4sVersion,
+        "org.http4s"            %% "http4s-blaze-server" % http4sVersion,
+        "org.http4s"            %% "http4s-blaze-client" % http4sVersion,
+        "org.http4s"            %% "http4s-circe"        % http4sVersion,
+        "dev.zio"               %% "zio"                 % zioVersion,
+        "dev.zio"               %% "zio-logging-slf4j"   % "0.5.11",
+        "dev.zio"               %% "zio-interop-cats"    % "2.5.1.0",
+        "com.github.pureconfig" %% "pureconfig"          % "0.16.0",
+        "ch.qos.logback"         % "logback-classic"     % "1.2.3",
+        "software.amazon.awssdk" % "dynamodb"            % "2.17.1"
       )
     )
   }
