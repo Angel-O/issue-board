@@ -4,17 +4,17 @@ import com.angelo.dashboard.=?>
 import com.angelo.dashboard.config.ZConfig.{getServerConfig, ServerConfig, ZConfig}
 import com.angelo.dashboard.environment.ExecutionEnvironment
 import com.angelo.dashboard.environment.ExecutionEnvironment.ExecutionEnvironment
-import com.angelo.dashboard.http.ZIssueRoutes
-import com.angelo.dashboard.http.ZIssueRoutes.ZIssueRoutes
+import com.angelo.dashboard.http.ZRoutes
+import com.angelo.dashboard.http.ZRoutes.ZRoutes
 import com.angelo.dashboard.logging.ZLogger
 import com.angelo.dashboard.logging.ZLogger.ZLogger
 import org.http4s._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.headers.{`Content-Length`, Connection}
 import org.http4s.implicits._
+import org.http4s.server.Server
 import org.http4s.server.blaze.BlazeServerBuilder
-import org.http4s.server.middleware.{AutoSlash, CORS, CORSConfig}
-import org.http4s.server.{Router, Server}
+import org.http4s.server.middleware.{CORS, CORSConfig}
 import zio.interop.catz.implicits._
 import zio.interop.catz.zioResourceSyntax
 import zio.{Cause, Has, RLayer, Task, URIO, ZIO, ZLayer}
@@ -25,24 +25,18 @@ object ZHttpServer extends Http4sDsl[Task] {
 
   type Service = Server[Task]
 
-  val live: RLayer[ExecutionEnvironment with ZIssueRoutes with ZLogger with ZConfig, ZHttpServer] =
+  val live: RLayer[ExecutionEnvironment with ZRoutes with ZLogger with ZConfig, ZHttpServer] =
     ZLayer.fromServicesManaged[
       ExecutionEnvironment.Service,
-      ZIssueRoutes.Service,
+      ZRoutes.Service,
       ZLogger.Service,
       ZConfig,
       Throwable,
       Service
-    ] { (env, issuesRoutes, logging) =>
+    ] { (env, api, logging) =>
       getServerConfig.toManaged_ flatMap { cfg =>
         import env._
         import logging._
-
-        val routes =
-          Router(
-            "/"       -> HttpRoutes.of[Task] { case GET -> Root => Ok("issue-board") },
-            "/api/v1" -> AutoSlash(issuesRoutes.routes)
-          )
 
         def errorHandler(req: Request[Task]): Throwable =?> Task[Response[Task]] =
           err => error(s"Error occurred: ${err.getMessage}", Cause.fail(err)).as(errorResponse(req))
@@ -52,7 +46,7 @@ object ZHttpServer extends Http4sDsl[Task] {
           .withServiceErrorHandler(errorHandler)
           .withIdleTimeout(cfg.connectionIdleTimeout)
           .withResponseHeaderTimeout(cfg.responseTimeout)
-          .withHttpApp(CORS(routes.orNotFound, corsConfig(cfg)))
+          .withHttpApp(CORS(api.httpApp, corsConfig(cfg)))
           .bindHttp(cfg.port, cfg.host)
           .resource
           .toManagedZIO

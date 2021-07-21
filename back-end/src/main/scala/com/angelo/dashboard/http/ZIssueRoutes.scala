@@ -7,6 +7,7 @@ import com.angelo.dashboard.environment.ExecutionEnvironment.ExecutionEnvironmen
 import com.angelo.dashboard.{=?>, Issue}
 import org.http4s.circe.CirceEntityCodec._
 import org.http4s.dsl.Http4sDsl
+import org.http4s.server.Router
 import org.http4s.{HttpRoutes, Request, Response}
 import zio._
 
@@ -23,13 +24,17 @@ object ZIssueRoutes extends Http4sDsl[Task] {
       import env._
 
       new Service {
-        override val routes: HttpRoutes[Task] = HttpRoutes.of[Task] {
-          case GET -> Root / "issues"                            => getIssues
-          case GET -> Root / "issues" / NonEmptyPath(issueId)    => getIssue(issueId)
-          case req @ POST -> Root / "issues"                     => createIssue(req)
-          case req @ PATCH -> Root / "issues"                    => archiveIssue(req)
-          case DELETE -> Root / "issues" / NonEmptyPath(issueId) => deleteIssue(issueId)
-        }
+
+        override val routes: HttpRoutes[Task] = Router("issues" -> api)
+
+        private def api: HttpRoutes[Task] =
+          HttpRoutes.of[Task] {
+            case GET -> Root                            => getIssues
+            case GET -> Root / NonEmptyPath(issueId)    => getIssue(issueId)
+            case req @ POST -> Root                     => createIssue(req)
+            case req @ PATCH -> Root                    => archiveIssue(req)
+            case DELETE -> Root / NonEmptyPath(issueId) => deleteIssue(issueId)
+          }
 
         private def getIssue(issueId: String): Task[Response[Task]] =
           (issueRepo.getIssue(issueId) >>= (Ok(_))) catchSome errorHandler
