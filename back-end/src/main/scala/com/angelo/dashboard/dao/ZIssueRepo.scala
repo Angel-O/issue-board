@@ -41,9 +41,9 @@ object ZIssueRepo {
         Service
       ] { (client, blocking, logging) =>
         getDbConfig.map { cfg =>
-          import blocking._
           import cfg._
           import logging._
+          import blocking._
 
           new Service {
 

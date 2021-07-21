@@ -23,8 +23,8 @@ object ZIssueTableMaker {
   val live: ZLayer[ZDbClient with Blocking with ZConfig, Throwable, ZIssueTableMaker] =
     ZLayer.fromServicesM[ZDbClient.Service, Blocking.Service, ZConfig, Throwable, Service] { (client, blocking) =>
       getDbConfig.map { cfg =>
-        import blocking._
         import cfg._
+        import blocking._
 
         new Service {
           override def makeTable: Task[Unit] =
