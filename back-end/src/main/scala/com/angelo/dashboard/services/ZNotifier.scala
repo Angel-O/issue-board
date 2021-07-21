@@ -1,7 +1,7 @@
 package com.angelo.dashboard.services
 
-import com.angelo.dashboard.client.ZHttpClientProvider
-import com.angelo.dashboard.client.ZHttpClientProvider.ZHttpClientProvider
+import com.angelo.dashboard.client.ZHttpClient
+import com.angelo.dashboard.client.ZHttpClient.ZHttpClient
 import com.angelo.dashboard.config.ZConfig.{getSlackConfig, ZConfig}
 import com.angelo.dashboard.dao.ZIssueRepo
 import com.angelo.dashboard.dao.ZIssueRepo.ZIssueRepo
@@ -24,19 +24,16 @@ object ZNotifier {
     def sendMessageToSlack: IO[NotifierError, Unit]
   }
 
-  // this managed layer will close the connection opened by the client at the end of the application
-  val live: RLayer[ZConfig with ZHttpClientProvider with Console with ZIssueRepo, ZNotifier] =
+  sealed trait NotifierError                             extends NoStackTrace
+  case class InvalidUri(override val getMessage: String) extends NotifierError
+  case class SlackUnreacheable(cause: Throwable)         extends NotifierError
+  case class RepositoryFail(cause: Throwable)            extends NotifierError
+
+  val live: RLayer[ZConfig with ZHttpClient with Console with ZIssueRepo, ZNotifier] =
     ZLayer
-      .fromServicesManaged[
-        ZHttpClientProvider.Service,
-        Console.Service,
-        ZIssueRepo.Service,
-        ZConfig,
-        Throwable,
-        Service
-      ] { (clientProvider, console, repo) =>
-        clientProvider.asResource
-          .zipWith(getSlackConfig.toManaged_) { (client, cfg) =>
+      .fromServicesM[ZHttpClient.Service, Console.Service, ZIssueRepo.Service, ZConfig, Throwable, Service] {
+        (client, console, repo) =>
+          getSlackConfig.map { cfg =>
             import cfg._
 
             new Service {
@@ -67,11 +64,6 @@ object ZNotifier {
     ZIO
       .fromEither(Uri.fromString(endpoint))
       .orElseFail(InvalidUri(s"invalid endpoint: $endpoint"))
-
-  sealed trait NotifierError                             extends NoStackTrace
-  case class InvalidUri(override val getMessage: String) extends NotifierError
-  case class SlackUnreacheable(cause: Throwable)         extends NotifierError
-  case class RepositoryFail(cause: Throwable)            extends NotifierError
 
   // accessor
   val service: URIO[ZNotifier, Service] = ZIO.service[Service]

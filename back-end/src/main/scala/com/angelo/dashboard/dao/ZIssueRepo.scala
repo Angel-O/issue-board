@@ -1,12 +1,12 @@
 package com.angelo.dashboard.dao
 
 import com.angelo.dashboard._
-import com.angelo.dashboard.client.ZDbClientProvider
-import com.angelo.dashboard.client.ZDbClientProvider.ZDbClientProvider
+import com.angelo.dashboard.client.ZDbClient
+import com.angelo.dashboard.client.ZDbClient.ZDbClient
 import com.angelo.dashboard.config.ZConfig.{getDbConfig, ZConfig}
 import com.angelo.dashboard.dao.DynamoDbHelpers._
-import com.angelo.dashboard.logging.Logs
-import com.angelo.dashboard.logging.Logs.Logs
+import com.angelo.dashboard.logging.ZLogger
+import com.angelo.dashboard.logging.ZLogger.ZLogger
 import software.amazon.awssdk.services.dynamodb.model._
 import zio._
 import zio.blocking.Blocking
@@ -30,19 +30,20 @@ object ZIssueRepo {
   case object IssueNotFound extends NoStackTrace
 
   //TODO ifA not working properly
-  val live: RLayer[ZDbClientProvider with Blocking with Logs with ZConfig, ZIssueRepo] =
+  val live: RLayer[ZDbClient with Blocking with ZLogger with ZConfig, ZIssueRepo] =
     ZLayer
-      .fromServicesManaged[
-        ZDbClientProvider.Service,
+      .fromServicesM[
+        ZDbClient.Service,
         Blocking.Service,
-        Logs.Service,
+        ZLogger.Service,
         ZConfig,
         Throwable,
         Service
-      ] { (dbClientProvider, blocking, logging) =>
-        dbClientProvider.asResource.zipWith(getDbConfig.toManaged_) { (client, cfg) =>
+      ] { (client, blocking, logging) =>
+        getDbConfig.map { cfg =>
           import blocking._
           import cfg._
+          import logging._
 
           new Service {
 
@@ -85,11 +86,16 @@ object ZIssueRepo {
 
             private def collectLoggingFailures(dbRecords: Seq[Map[String, AttributeValue]]): UIO[Seq[Issue]] =
               ZIO
-                .foreach(dbRecords)(dbRecord => UIO(asAttemptedIssue(dbRecord)).tap(logOnlyFailures(dbRecord)))
+                .foreach(dbRecords)(record => UIO(asAttemptedIssue(record)).tap(logOnlyFailures(record)))
                 .map(_.collect { case Right(issue) => issue })
 
             private def logOnlyFailures[A](dbFields: Map[String, A]): Either[Throwable, Issue] => UIO[Unit]  =
-              ZIO.whenCase(_) { case Left(err) => ZIO.whenCase(err)(logSomeErrors(dbFields, logging)) }
+              ZIO.whenCase(_) { case Left(err) => ZIO.whenCase(err)(logSomeErrors(dbFields)) }
+
+            private def logSomeErrors[A](record: Map[String, A]): Throwable =?> UIO[Unit]                    = {
+              case err @ FieldNotFound(_) => warn(err.getMessage)
+              case err                    => warn(s"unable to deserialize issue. Fields: $record. Error: ${err.getMessage}")
+            }
           }
         }
       }
@@ -97,10 +103,5 @@ object ZIssueRepo {
   private val archiveErrorHandler: Throwable => Throwable = {
     case _: ConditionalCheckFailedException => IssueNotFound
     case err                                => err
-  }
-
-  private def logSomeErrors[A](record: Map[String, A], log: Logs.Service): Throwable =?> UIO[Unit] = {
-    case err @ FieldNotFound(_) => log.warn(err.getMessage)
-    case err                    => log.warn(s"unable to deserialize issue. Fields: $record. Error: ${err.getMessage}")
   }
 }

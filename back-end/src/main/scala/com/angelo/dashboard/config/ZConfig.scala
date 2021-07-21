@@ -9,6 +9,7 @@ import scala.concurrent.duration.Duration
 object ZConfig {
 
   type ZConfig = Has[Service]
+
   type Service = AppConfig
 
   final case class AppConfig(
@@ -34,9 +35,9 @@ object ZConfig {
     ZIO.effect(ConfigSource.url(getClass.getResource("/application.conf")).loadOrThrow[AppConfig]).toLayer.orDie
 
   //accessors
-  val getConfig: URIO[ZConfig, Service]                  = ZIO.service[Service]
-  val getServerConfig: URIO[ZConfig, ServerConfig]       = getConfig.map(_.serverConfig)
-  val getDbConfig: URIO[ZConfig, DynamoDbConfig]         = getConfig.map(_.dynamoDb)
-  val getSlackConfig: URIO[ZConfig, SlackConfig]         = getConfig.map(_.slackConfig)
-  val getSchedulerConfig: URIO[ZConfig, SchedulerConfig] = getConfig.map(_.schedulerConfig)
+  private val service: URIO[ZConfig, Service]            = ZIO.service[Service]
+  val getServerConfig: URIO[ZConfig, ServerConfig]       = service.map(_.serverConfig)
+  val getDbConfig: URIO[ZConfig, DynamoDbConfig]         = service.map(_.dynamoDb)
+  val getSlackConfig: URIO[ZConfig, SlackConfig]         = service.map(_.slackConfig)
+  val getSchedulerConfig: URIO[ZConfig, SchedulerConfig] = service.map(_.schedulerConfig)
 }

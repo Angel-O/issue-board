@@ -1,18 +1,16 @@
 package com.angelo.dashboard.logging
 
 import zio.logging.slf4j.Slf4jLogger
-import zio.logging.{LogAnnotation, Logger, Logging}
+import zio.logging.{LogAnnotation, Logger}
 import zio.{Cause, Has, ULayer}
 
-object Logs {
+object ZLogger {
 
-  type Logs    = Has[Service]
+  type ZLogger = Has[Service]
+
   type Service = Logger[String]
 
-  val live: ULayer[Logging] = Slf4jLogger.make((_, line) => line)
-
-  /** playing around with zio-logging looking for a valid use case */
-  val liveAnnotated: ULayer[Logging] = {
+  val live: ULayer[ZLogger] = {
     val logFormat = "[EXCEPTION: %s] %s"
 
     Slf4jLogger.make { (context, line) =>

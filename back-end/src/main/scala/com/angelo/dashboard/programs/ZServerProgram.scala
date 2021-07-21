@@ -7,8 +7,9 @@ import zio.logging.Logging.info
 
 object ZServerProgram {
 
-  val serveHttpRequests: RIO[ServerEnvironment, Nothing] =
+  /** A very minimal program. Use of the managed resource, handled by the ZLayer */
+  val serveHttpRequests: RIO[ServerEnvironment, Unit] =
     ZHttpServer.service
-      .flatMap(_.serverResource.useForever)
-      .onTermination(_ => info("server shut down"))
+      .tap(server => info(s"server created. secure: ${server.isSecure}"))
+      .unit
 }

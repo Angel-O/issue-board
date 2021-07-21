@@ -39,8 +39,8 @@
 - add nvm to docs, add .env file to docs
 - explore this (https://github.com/Tapad/sbt-docker-compose) or this (https://github.com/timo-schmid/sbt-docker-run) or
  even this (https://github.com/marcuslonnberg/sbt-docker)
- - add monitoring
- - add gatling load tests
- - build ui remote logger
- - build backend logger facade
- - use docker bind mounts instead of volumes
+- add monitoring
+- add gatling load tests
+- build ui remote logger
+- build backend logger facade
+- use docker bind mounts instead of volumes

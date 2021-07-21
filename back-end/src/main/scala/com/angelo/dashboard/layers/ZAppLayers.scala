@@ -1,8 +1,8 @@
 package com.angelo.dashboard.layers
 
-import com.angelo.dashboard.client.ZDbClientProvider.ZDbClientProvider
-import com.angelo.dashboard.client.ZHttpClientProvider.ZHttpClientProvider
-import com.angelo.dashboard.client.{ZDbClientProvider, ZHttpClientProvider}
+import com.angelo.dashboard.client.ZDbClient.ZDbClient
+import com.angelo.dashboard.client.ZHttpClient.ZHttpClient
+import com.angelo.dashboard.client.{ZDbClient, ZHttpClient}
 import com.angelo.dashboard.config.ZConfig
 import com.angelo.dashboard.config.ZConfig.ZConfig
 import com.angelo.dashboard.dao.ZIssueRepo
@@ -11,8 +11,8 @@ import com.angelo.dashboard.environment.ExecutionEnvironment
 import com.angelo.dashboard.environment.ExecutionEnvironment.ExecutionEnvironment
 import com.angelo.dashboard.http.ZIssueRoutes
 import com.angelo.dashboard.http.ZIssueRoutes.ZIssueRoutes
-import com.angelo.dashboard.logging.Logs
-import com.angelo.dashboard.logging.Logs.Logs
+import com.angelo.dashboard.logging.ZLogger
+import com.angelo.dashboard.logging.ZLogger.ZLogger
 import com.angelo.dashboard.services.ZHttpServer.ZHttpServer
 import com.angelo.dashboard.services.ZIssueTableMaker.ZIssueTableMaker
 import com.angelo.dashboard.services.ZNotifier.ZNotifier
@@ -28,16 +28,16 @@ trait ZAppLayers extends ZDefaultLayers { rtm: Runtime[ZEnv] =>
   val runtimeLayer: ULayer[RuntimeEnv]                = ZLayer.succeed(rtm)
   val executionEnvLayer: ULayer[ExecutionEnvironment] = runtimeLayer >>> ExecutionEnvironment.live
 
-  val configLayer: ULayer[ZConfig] = ZConfig.live
-  val loggingLayer: ULayer[Logs]   = Logs.liveAnnotated
+  val configLayer: ULayer[ZConfig]  = ZConfig.live
+  val loggingLayer: ULayer[ZLogger] = ZLogger.live
 
-  val configAndLogsLayer: ULayer[ConfigAndLogs] = configLayer ++ loggingLayer
+  val configAndLogsLayer: ULayer[ConfigAndLogger] = configLayer ++ loggingLayer
 
-  val dbClientLayer: TaskLayer[ZDbClientProvider] = configAndLogsLayer >>> ZDbClientProvider.live
-  val repoLayer: TaskLayer[ZIssueRepo]            = (dbClientLayer ++ blockingLayer ++ configAndLogsLayer) >>> ZIssueRepo.live
+  val dbClientLayer: TaskLayer[ZDbClient] = configAndLogsLayer >>> ZDbClient.live
+  val repoLayer: TaskLayer[ZIssueRepo]    = (dbClientLayer ++ blockingLayer ++ configAndLogsLayer) >>> ZIssueRepo.live
 
-  val httpClientLayer: ULayer[ZHttpClientProvider] = (executionEnvLayer ++ loggingLayer) >>> ZHttpClientProvider.live
-  val routesLayer: TaskLayer[ZIssueRoutes]         = (executionEnvLayer ++ repoLayer) >>> ZIssueRoutes.live
+  val httpClientLayer: TaskLayer[ZHttpClient] = (executionEnvLayer ++ loggingLayer) >>> ZHttpClient.live
+  val routesLayer: TaskLayer[ZIssueRoutes]    = (executionEnvLayer ++ repoLayer) >>> ZIssueRoutes.live
 
   // services
   val servicesSharedLayer = executionEnvLayer ++ configLayer
@@ -57,9 +57,9 @@ trait ZAppLayers extends ZDefaultLayers { rtm: Runtime[ZEnv] =>
 object ZAppLayers {
 
   type RuntimeEnv            = Has[Runtime[ZEnv]]
-  type ConfigAndLogs         = ZConfig with Logs
-  type SchedulerEnvironment  = ZNotifier with ConfigAndLogs with Clock with Random
-  type ServerEnvironment     = ZHttpServer with Logs
-  type TableMakerEnvironment = ZIssueTableMaker with Logs with Clock
+  type ConfigAndLogger       = ZConfig with ZLogger
+  type SchedulerEnvironment  = ZNotifier with ConfigAndLogger with Clock with Random
+  type ServerEnvironment     = ZHttpServer with ZLogger
+  type TableMakerEnvironment = ZIssueTableMaker with ZLogger with Clock
   type AppDependencies       = TableMakerEnvironment with SchedulerEnvironment with ServerEnvironment
 }

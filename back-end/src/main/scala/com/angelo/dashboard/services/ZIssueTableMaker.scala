@@ -1,7 +1,7 @@
 package com.angelo.dashboard.services
 
-import com.angelo.dashboard.client.ZDbClientProvider
-import com.angelo.dashboard.client.ZDbClientProvider.ZDbClientProvider
+import com.angelo.dashboard.client.ZDbClient
+import com.angelo.dashboard.client.ZDbClient.ZDbClient
 import com.angelo.dashboard.config.ZConfig.{getDbConfig, ZConfig}
 import com.angelo.dashboard.dao.DynamoDbHelpers.createTableRequest
 import software.amazon.awssdk.services.dynamodb.model.ResourceInUseException
@@ -20,19 +20,17 @@ object ZIssueTableMaker {
 
   case class TableAlreadyExists(tableName: String) extends NoStackTrace
 
-  val live: ZLayer[ZDbClientProvider with Blocking with ZConfig, Throwable, ZIssueTableMaker] =
-    ZLayer.fromServicesManaged[ZDbClientProvider.Service, Blocking.Service, ZConfig, Throwable, Service] {
-      (clientProvider, blocking) =>
-        clientProvider.asResource.zipWith(getDbConfig.toManaged_) { (client, cfg) =>
-          import blocking._
-          import cfg._
+  val live: ZLayer[ZDbClient with Blocking with ZConfig, Throwable, ZIssueTableMaker] =
+    ZLayer.fromServicesM[ZDbClient.Service, Blocking.Service, ZConfig, Throwable, Service] { (client, blocking) =>
+      getDbConfig.map { cfg =>
+        import blocking._
+        import cfg._
 
-          new Service {
-            override def makeTable: Task[Unit] =
-              effectBlocking(client.createTable(createTableRequest(issueTable))).unit mapError errorHandler(issueTable)
-          }
+        new Service {
+          override def makeTable: Task[Unit] =
+            effectBlocking(client.createTable(createTableRequest(issueTable))).unit mapError errorHandler(issueTable)
         }
-
+      }
     }
 
   private def errorHandler(tableName: String): Throwable => Throwable = {
