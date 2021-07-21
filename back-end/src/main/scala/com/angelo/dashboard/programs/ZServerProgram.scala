@@ -10,6 +10,6 @@ object ZServerProgram {
   /** A very minimal program. Use of the managed resource, handled by the ZLayer */
   val serveHttpRequests: RIO[ServerEnvironment, Unit] =
     ZHttpServer.service
-      .tap(server => info(s"server created. secure: ${server.isSecure}"))
+      .tap(server => info(s"server created (secure: ${server.isSecure})"))
       .unit
 }

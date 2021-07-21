@@ -46,7 +46,7 @@ trait ZAppLayers extends ZDefaultLayers { rtm: Runtime[ZEnv] =>
   val dbTableMakerLayer   = (dbClientLayer ++ blockingLayer ++ configLayer) >>> ZIssueTableMaker.live
 
   // programs
-  val tableMakerLayer: TaskLayer[TableMakerEnvironment] = dbTableMakerLayer ++ loggingLayer ++ clockLayer
+  val tableMakerLayer: TaskLayer[TableMakerEnvironment] = dbTableMakerLayer ++ loggingLayer ++ clockLayer ++ configLayer
   val serverLayer: TaskLayer[ServerEnvironment]         = httpServerLayer ++ loggingLayer
   val schedulerLayer: TaskLayer[SchedulerEnvironment]   = notifierLayer ++ configAndLogsLayer ++ clockLayer ++ randomLayer
 
@@ -60,6 +60,6 @@ object ZAppLayers {
   type ConfigAndLogger       = ZConfig with ZLogger
   type SchedulerEnvironment  = ZNotifier with ConfigAndLogger with Clock with Random
   type ServerEnvironment     = ZHttpServer with ZLogger
-  type TableMakerEnvironment = ZIssueTableMaker with ZLogger with Clock
+  type TableMakerEnvironment = ZIssueTableMaker with ZLogger with Clock with ZConfig
   type AppDependencies       = TableMakerEnvironment with SchedulerEnvironment with ServerEnvironment
 }

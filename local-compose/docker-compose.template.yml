@@ -21,6 +21,7 @@ services:
       - "8080"
     environment:
       - DB_ISSUES_TABLE=core-retro-issues-v2
+      - DB_TABLE_CREATION_MAX_ATTEMPTS=15
       - DB_ENDPOINT=http://db:8000
       - DB_CLIENT_TIMEOUT=2 seconds
       - SERVER_HTTP_HOST=0.0.0.0

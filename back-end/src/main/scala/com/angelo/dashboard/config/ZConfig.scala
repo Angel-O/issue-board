@@ -26,7 +26,13 @@ object ZConfig {
     responseTimeout: Duration,
     allowedOrigin: String
   )
-  final case class DynamoDbConfig(issueTable: String, endpoint: String, clientTimeout: Duration)
+
+  final case class DynamoDbConfig(
+    issueTable: String,
+    tableCreationMaxAttempts: Int,
+    endpoint: String,
+    clientTimeout: Duration
+  )
   final case class SlackConfig(endpoint: String, token: String, minimumActiveIssues: Int, devMode: Boolean)
   final case class SchedulerConfig(initialDelay: Duration, loopInterval: Duration, backoff: BackoffConfig)
   final case class BackoffConfig(basePeriod: Duration, resetPeriod: Duration)
