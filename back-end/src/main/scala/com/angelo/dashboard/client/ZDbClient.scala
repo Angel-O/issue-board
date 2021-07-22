@@ -15,6 +15,7 @@ object ZDbClient {
 
   type ZDbClient = Has[Service]
 
+  /** the result of this layer is not suspended to leverage the caching abilities of ZLayers */
   type Service = DynamoDbClient
 
   /**
