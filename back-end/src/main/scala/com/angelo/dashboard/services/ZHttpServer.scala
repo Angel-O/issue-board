@@ -58,11 +58,11 @@ object ZHttpServer extends Http4sDsl[Task] {
         }
     }
 
-  private def errorHandler(onError: Throwable => UIO[Unit])(req: Request[Task]): Throwable =?> Task[Response[Task]] =
-    err => onError(err).as(errorResponse(req))
-
   private def corsConfig(cfg: ServerConfig): CORSConfig =
     CORS.DefaultCORSConfig.copy(anyOrigin = false, allowedOrigins = _ == cfg.allowedOrigin)
+
+  private def errorHandler(onError: Throwable => UIO[Unit])(req: Request[Task]): Throwable =?> Task[Response[Task]] =
+    err => onError(err).as(errorResponse(req))
 
   private def errorResponse(req: Request[Task]): Response[Task] =
     Response(InternalServerError, req.httpVersion, errorResponseHeaders(req))
