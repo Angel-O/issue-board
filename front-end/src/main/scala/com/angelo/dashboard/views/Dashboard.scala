@@ -1,19 +1,16 @@
 package com.angelo.dashboard.views
 
-import com.angelo.dashboard.Issue
-import com.angelo.dashboard.circuit.IssueHandler.FetchIssues
-import com.angelo.dashboard.styling.GlobalStyles
-import diode.react.ModelProxy
+import com.angelo.dashboard.CssSettings._
 import com.angelo.dashboard.circuit.AppCircuit
 import com.angelo.dashboard.circuit.AppModel._
 import com.angelo.dashboard.circuit.IssueHandler.{ArchiveIssue, DeleteIssue, FetchIssues}
-import com.angelo.dashboard.views.Dashboard.State.State
-import com.angelo.dashboard.{Issue, _}
-import com.angelo.dashboard.CssSettings._
 import com.angelo.dashboard.components.IssueCard.IssueCard
 import com.angelo.dashboard.components.SearchBar.SearchBar
 import com.angelo.dashboard.styling.GlobalStyles
 import com.angelo.dashboard.utils.Helpers
+import com.angelo.dashboard.views.Dashboard.State.State
+import com.angelo.dashboard.{Issue, _}
+import diode.react.ModelProxy
 import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.{BackendScope, Callback, ScalaComponent}
 import scalacss.internal.mutable.StyleSheet
@@ -60,16 +57,18 @@ object Dashboard {
       def needsFetching: Boolean         = filteredIssuesIds.isEmpty
     }
 
-    def applyUnsafe(issuesIds: IssuesIds): State = issuesIds match {
-      case Nil => State(None)
-      case _   => State(Some(issuesIds))
-    }
+    def applyUnsafe(issuesIds: IssuesIds): State =
+      issuesIds match {
+        case Nil => State(None)
+        case _   => State(Some(issuesIds))
+      }
 
     //use when you don't want the justMounted flag to change even when the IssuesIds list is empty
     def applySafe(issuesIds: IssuesIds): State = State(Some(issuesIds))
   }
 
   object Backend {
+
     private def shouldBeDisplayed(text: String)(issue: Issue): Boolean =
       issue.title.toLowerCase.contains(text) || issue.content.toLowerCase.contains(text)
   }
@@ -155,8 +154,8 @@ object Dashboard {
       .initialStateFromProps(p => State.applyUnsafe(p.value.ids))
       .renderBackend[Backend]
       .componentDidMount(comp => comp.props.dispatchCB(FetchIssues).when_(comp.state.needsFetching))
-      .componentDidUpdate(
-        comp => comp.setState(State.applySafe(comp.currentProps.value.ids)).when_(comp.currentState.needsFetching)
+      .componentDidUpdate(comp =>
+        comp.setState(State.applySafe(comp.currentProps.value.ids)).when_(comp.currentState.needsFetching)
       )
       .build
 

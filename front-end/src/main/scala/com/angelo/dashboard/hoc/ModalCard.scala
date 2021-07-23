@@ -1,6 +1,5 @@
 package com.angelo.dashboard.hoc
 
-import com.angelo.dashboard.styling.GlobalStyles
 import com.angelo.dashboard._
 import com.angelo.dashboard.styling.GlobalStyles
 import japgolly.scalajs.react._

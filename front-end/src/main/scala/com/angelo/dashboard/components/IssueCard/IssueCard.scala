@@ -1,6 +1,5 @@
 package com.angelo.dashboard.components.IssueCard
 
-import com.angelo.dashboard.Issue
 import com.angelo.dashboard.CssSettings._
 import com.angelo.dashboard.styling.GlobalStyles
 import com.angelo.dashboard.{Issue, _}
@@ -14,14 +13,13 @@ object IssueCard {
 
     import dsl._
 
-    val opaque = styleF.bool(
-      isArchived =>
-        styleS(
-          GlobalStyles.applyTransition(opacity.attr.id, 1000),
-          transitionTimingFunction.easeIn,
-          if (isArchived) opacity(0.5)
-          else opacity(1)
-        )
+    val opaque = styleF.bool(isArchived =>
+      styleS(
+        GlobalStyles.applyTransition(opacity.attr.id, 1000),
+        transitionTimingFunction.easeIn,
+        if (isArchived) opacity(0.5)
+        else opacity(1)
+      )
     )
 
     val issueBox = style(

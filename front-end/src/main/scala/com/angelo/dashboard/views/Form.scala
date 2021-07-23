@@ -1,19 +1,17 @@
 package com.angelo.dashboard.views
 
+import cats.implicits._
+import com.angelo.dashboard.{Issue, _}
 import com.angelo.dashboard.circuit.AppCircuit
 import com.angelo.dashboard.circuit.IssueHandler.CreateIssue
 import com.angelo.dashboard.hoc.InputFields.{groupedInputField, inputField}
-import com.angelo.dashboard.routing.{DashBoardPage, Pages}
-import com.angelo.dashboard.{Issue, _}
+import com.angelo.dashboard.routing.Pages
+import com.angelo.dashboard.routing.Pages.DashBoardPage
+import com.angelo.dashboard.styling.GlobalStyles
 import japgolly.scalajs.react.component.Scala.{BackendScope, Unmounted}
 import japgolly.scalajs.react.extra.router.RouterCtl
 import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.{Callback, ReactEventFromInput, ScalaComponent}
-import cats.implicits._
-import com.angelo.dashboard.Issue
-import com.angelo.dashboard.routing.{DashBoardPage, Pages}
-import com.angelo.dashboard.styling.GlobalStyles
-import com.angelo.dashboard.styling.GlobalStyles
 
 object Form {
 
@@ -114,7 +112,5 @@ object Form {
       .build
 
   def apply(router: RouterCtl[Pages]): Unmounted[Props, State, Backend] =
-    AppCircuit.wrap(_.issuesLookup)(
-      p => component(Props(router, issue => p.dispatchCB(CreateIssue(issue))))
-    )
+    AppCircuit.wrap(_.issuesLookup)(p => component(Props(router, issue => p.dispatchCB(CreateIssue(issue)))))
 }

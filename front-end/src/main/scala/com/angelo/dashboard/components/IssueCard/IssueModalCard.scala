@@ -1,6 +1,5 @@
 package com.angelo.dashboard.components.IssueCard
 
-import com.angelo.dashboard.Issue
 import com.angelo.dashboard.hoc.ModalCard
 import com.angelo.dashboard.styling.GlobalStyles
 import com.angelo.dashboard.utils.Helpers

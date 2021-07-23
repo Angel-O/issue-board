@@ -1,11 +1,10 @@
 package com.angelo.dashboard.components.IssueCard
 
 import com.angelo.dashboard.Issue
-
-import java.time.format.DateTimeFormatter
-import com.angelo.dashboard.Issue
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
+
+import java.time.format.DateTimeFormatter
 
 object ModalContent {
 

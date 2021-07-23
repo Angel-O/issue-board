@@ -1,9 +1,8 @@
 package com.angelo.dashboard.views
 
-import com.angelo.dashboard.routing.{DashBoardPage, FormPage, HomePage, Pages}
-import com.angelo.dashboard.styling.GlobalStyles
 import com.angelo.dashboard._
-import com.angelo.dashboard.routing.{DashBoardPage, FormPage, HomePage, Pages}
+import com.angelo.dashboard.routing.Pages
+import com.angelo.dashboard.routing.Pages.{DashBoardPage, FormPage, HomePage}
 import com.angelo.dashboard.styling.GlobalStyles
 import com.angelo.dashboard.utils.Helpers
 import japgolly.scalajs.react.ScalaComponent

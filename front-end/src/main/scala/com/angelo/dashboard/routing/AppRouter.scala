@@ -1,6 +1,7 @@
 package com.angelo.dashboard.routing
 
 import com.angelo.dashboard.AppConfig
+import com.angelo.dashboard.routing.Pages.{DashBoardPage, FormPage, HomePage}
 import com.angelo.dashboard.views.Home.Home
 import com.angelo.dashboard.views._
 import japgolly.scalajs.react.extra.router.StaticDsl.Route
@@ -30,7 +31,7 @@ object AppRouter {
       dom.window.location.hostname match {
         case "localhost" | "127.0.0.1" | "0.0.0.0" =>
           BaseUrl.fromWindowUrl(_.takeWhile(_ != '#'))
-        case _ =>
+        case _                                     =>
           BaseUrl.fromWindowOrigin / AppConfig().ui.rootPath //TODO doublecheck this is safe
       }
 
