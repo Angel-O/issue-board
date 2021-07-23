@@ -12,6 +12,7 @@ import zio.duration.durationInt
 import zio.logging.Logging.{error, info, warn}
 import zio.{Cause, IO, Schedule, Task, URIO, ZIO}
 
+/** In real life this program wouldn't exists probably: infrastructure would be created separately. */
 object ZTableMakerProgram {
 
   final case class TableCreationFail(cause: Throwable) extends Exception("could not create table", cause)
