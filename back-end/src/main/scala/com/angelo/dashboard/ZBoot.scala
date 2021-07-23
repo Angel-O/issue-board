@@ -7,7 +7,7 @@ import com.angelo.dashboard.programs.ZPrograms
 import zio.Exit.Failure
 import zio._
 import zio.interop.catz.CatsApp
-import zio.logging.Logging.error
+import zio.logging.Logging.{error, info}
 
 object ZBoot extends CatsApp with ZAppLayers {
 
@@ -25,7 +25,8 @@ object ZBoot extends CatsApp with ZAppLayers {
 
   private def finalizer(exit: Exit[Throwable, Unit]): URIO[ZLogger, Unit] =
     ZIO.whenCase(exit) {
-      case Failure(c) if c.failed => error(s"App terminated: ${c.squash.getMessage}")
-      case Failure(c) if c.died   => error(s"App exited unexpectedly: ${c.squash.getMessage}")
+      case Failure(c) if c.interruptedOnly => info(s"App interrupted")
+      case Failure(c) if c.failed          => error(s"App terminated: ${c.squash.getMessage}")
+      case Failure(c) if c.died            => error(s"App exited unexpectedly: ${c.squash.getMessage}")
     }
 }
