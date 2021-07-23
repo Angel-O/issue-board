@@ -44,3 +44,4 @@
 - build backend logger facade
 - use docker bind mounts instead of volumes
 - ability to run script without building ui & db containers
+- sort out aws credentials

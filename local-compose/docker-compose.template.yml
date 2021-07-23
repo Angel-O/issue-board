@@ -15,7 +15,7 @@ services:
     depends_on:
       - backend
   backend:
-    image: "angeloop/issue-board-backend:{tag}"
+    image: "issue-board-backend:{tag}"
     container_name: "backend"
     ports:
       - "8080"

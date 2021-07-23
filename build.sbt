@@ -1,5 +1,4 @@
 import SettingsAndTasks._
-import com.amazonaws.regions.{Region, Regions}
 
 import scala.language.postfixOps
 import scala.sys.process._
@@ -67,15 +66,20 @@ lazy val frontEnd = (project in file("front-end"))
 
 lazy val backEnd = (project in file("back-end"))
   .dependsOn(shared.jvm)
-  .enablePlugins(JavaAppPackaging, EcrPlugin)
+  .enablePlugins(JavaAppPackaging)
   .settings(
     Compile / mainClass := Some("com.angelo.dashboard.ZBoot"),
     reStart / javaOptions += "-Xmx2g",
     devMode := (Compile / reStart).toTask("").value,
     debugSettings := Revolver.enableDebugging(port = 5050, suspend = false).init.value,
     clean := clean.dependsOn(killDb).value,
-    dockerSettings,
-    dockerEnvVars := awsCreds,    // Docker / publishLocal / dockerEnvVars := awsCreds, not working...
+    dockerEnvVars := awsCreds,
+    Docker / daemonUser := "daemon",
+    Docker / packageName := s"$projectName-backend",
+    Docker / version := baseVersion,
+    Docker / dockerExposedPorts := Seq(8080),
+    Docker / dockerLabels.withRank(KeyRanks.Invisible) := Map(baseVersion -> baseVersion),
+    Docker / dockerBaseImage.withRank(KeyRanks.Invisible) := "openjdk:11.0.4-jdk",
     libraryDependencies ++= Dependencies.Backend.deps.value,
     runDb := startDbProcess run (thisProjectRef / streams).value.log,
     killDb := killDbProcess ! (thisProjectRef / streams).value.log,
@@ -92,19 +96,3 @@ lazy val shared = crossProject(JSPlatform, JVMPlatform)
 
 lazy val misc = (project in file("miscellaneous"))
   .settings(libraryDependencies ++= Dependencies.Miscellaneous.deps.value)
-
-lazy val dockerSettings = Seq(
-  Docker / daemonUser := "daemon",
-  Docker / packageName := s"$projectName-backend",
-  Docker / version := baseVersion,
-  Docker / dockerExposedPorts := Seq(8080),
-  Docker / dockerLabels.withRank(KeyRanks.Invisible) := Map(baseVersion -> baseVersion),
-  Docker / dockerBaseImage.withRank(KeyRanks.Invisible) := "openjdk:11.0.4-jdk",
-  Docker / dockerRepository := Some("angeloop"),
-  Ecr / region := Region.getRegion(Regions.EU_WEST_2),
-  Ecr / repositoryName := (Docker / packageName).value,
-  Ecr / localDockerImage := (Docker / dockerRepository).value.get + "/" + (Docker / packageName).value + ":" + (Docker / version).value,
-  Ecr / login := ((Ecr / login) dependsOn (Ecr / createRepository)).value,
-  Ecr / push := ((Ecr / push) dependsOn (Docker / publishLocal, Ecr / login)).value,
-  Ecr / repositoryTags := Seq(baseVersion)
-)

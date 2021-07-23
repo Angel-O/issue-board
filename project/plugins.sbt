@@ -1,8 +1,5 @@
-resolvers := Seq(Resolver.jcenterRepo)
 addSbtPlugin("org.scala-js"       % "sbt-scalajs"              % "1.6.0")
 addSbtPlugin("ch.epfl.scala"      % "sbt-scalajs-bundler"      % "0.20.0")
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.1.0")
-addSbtPlugin("ohnosequences"      % "sbt-s3-resolver"          % "0.19.0")
-addSbtPlugin("com.mintbeans"      % "sbt-ecr"                  % "0.16.0")
 addSbtPlugin("com.typesafe.sbt"   % "sbt-native-packager"      % "1.8.0")
 addSbtPlugin("io.spray"           % "sbt-revolver"             % "0.9.1")
