@@ -45,3 +45,4 @@
 - use docker bind mounts instead of volumes
 - ability to run script without building ui & db containers
 - sort out aws credentials
+- share configuration between backend and frontend (resources folder inside shared project ???)
