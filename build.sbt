@@ -69,7 +69,7 @@ lazy val backEnd = (project in file("back-end"))
   .enablePlugins(JavaAppPackaging)
   .settings(
     Compile / mainClass := Some("com.angelo.dashboard.ZBoot"),
-    reStart / javaOptions += "-Xmx2g",
+    reStart / javaOptions ++= Seq("-Xms128M", "-Xmx256M"),
     devMode := (Compile / reStart).toTask("").value,
     debugSettings := Revolver.enableDebugging(port = 5050, suspend = false).init.value,
     clean := clean.dependsOn(killDb).value,

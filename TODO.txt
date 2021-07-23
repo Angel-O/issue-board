@@ -46,3 +46,4 @@
 - ability to run script without building ui & db containers
 - sort out aws credentials
 - share configuration between backend and frontend (resources folder inside shared project ???)
+- backend should not be accessible on the host when run via docker
