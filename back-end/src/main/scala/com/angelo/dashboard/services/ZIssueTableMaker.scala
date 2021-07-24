@@ -28,7 +28,9 @@ object ZIssueTableMaker {
 
         new Service {
           override def makeTable: Task[Unit] =
-            effectBlocking(client.createTable(createTableRequest(issueTable))).unit mapError errorHandler(issueTable)
+            effectBlocking(
+              client.createTable(createTableRequest(issueTable, initialReadCapacity, initialWriteCapacity))
+            ).unit mapError errorHandler(issueTable)
         }
       }
     }

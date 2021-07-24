@@ -25,7 +25,7 @@ object ZBoot extends CatsApp with ZAppLayers {
 
   private def finalizer(exit: Exit[Throwable, Unit]): URIO[ZLogger, Unit] =
     ZIO.whenCase(exit) {
-      case Failure(c) if c.interruptedOnly => info(s"App interrupted")
+      case Failure(c) if c.interruptedOnly => info("App interrupted")
       case Failure(c) if c.failed          => error(s"App terminated: ${c.squash.getMessage}", Cause.fail(c.squash))
       case Failure(c) if c.died            => error(s"App exited unexpectedly: ${c.squash.getMessage}")
     }

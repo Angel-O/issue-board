@@ -14,10 +14,8 @@ import scala.util.control.NoStackTrace
 object DynamoDbHelpers {
 
   private val EXPRESSION_PLACEHOLDER = ":newValue"
-  private val readCapacity           = 5L
-  private val writeCapacity          = 5L
 
-  def createTableRequest(tableName: String): CreateTableRequest =
+  def createTableRequest(tableName: String, readCapacity: Long, writeCapacity: Long): CreateTableRequest =
     CreateTableRequest.builder
       .tableName(tableName)
       .attributeDefinitions(AttributeDefinition.builder.attributeName(ID).attributeType("S").build)

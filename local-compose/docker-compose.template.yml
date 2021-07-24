@@ -22,6 +22,8 @@ services:
     environment:
       - DB_ISSUES_TABLE=core-retro-issues-v2
       - DB_TABLE_CREATION_MAX_ATTEMPTS=15
+      - DB_INITIAL_READ_CAPACITY=5
+      - DB_INITIAL_WRITE_CAPACITY=5
       - DB_ENDPOINT=http://db:8000
       - DB_CLIENT_TIMEOUT=5 seconds
       - SERVER_HTTP_HOST=0.0.0.0
