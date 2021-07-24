@@ -11,7 +11,7 @@ object ZLogger {
   type Service = Logger[String]
 
   val live: ULayer[ZLogger] = {
-    val logFormat = "[EXCEPTION: %s] %s"
+    val logFormat = "[CAUSE: %s] %s"
 
     Slf4jLogger.make { (context, line) =>
       context

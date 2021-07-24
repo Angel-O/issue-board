@@ -15,7 +15,7 @@ import zio.{Cause, IO, Schedule, URIO, ZIO}
 
 object ZSchedulerProgram {
 
-  val scheduleSlackNotifications: ZIO[SchedulerEnvironment, NotifierError, Unit] =
+  val scheduleSlackNotifications: ZIO[SchedulerEnvironment, InvalidUri, Unit] =
     ZNotifier.service
       .map(_.sendMessageToSlack)
       .zipWith(getSchedulerConfig)(runWithSchedule)
@@ -24,11 +24,12 @@ object ZSchedulerProgram {
   private def runWithSchedule(
     task: IO[NotifierError, Unit],
     cfg: SchedulerConfig
-  ): ZIO[ZLogger with Random with Clock, NotifierError, Unit] =
+  ): ZIO[ZLogger with Random with Clock, InvalidUri, Unit] =
     task
       .retry(retryPolicy(cfg))
       .repeat(repeatStrategy(cfg))
       .delay(fromScala(cfg.initialDelay))
+      .refineToOrDie[InvalidUri]
       .unit
 
   private def retryPolicy(cfg: SchedulerConfig): Schedule[ZLogger with Random, NotifierError, Duration] =
@@ -53,12 +54,12 @@ object ZSchedulerProgram {
     info(s"notification #$nthNotification successfully sent")
 
   private val policySatisfied: NotifierError => Boolean = {
-    case InvalidUri(_)                            => false
-    case SlackUnreacheable(_) | RepositoryFail(_) => true
+    case InvalidUri(_)                        => false
+    case SlackCallFail(_) | RepositoryFail(_) => true
   }
 
   private val logSomeErrors: NotifierError =?> URIO[ZLogger, Unit] = {
-    case SlackUnreacheable(err) => error(s"could not send notification: ${err.getMessage}", Cause.fail(err))
-    case RepositoryFail(err)    => error(s"could not verify active issues: ${err.getMessage}", Cause.fail(err))
+    case SlackCallFail(err)  => error(s"could not send notification: ${err.getMessage}", Cause.fail(err))
+    case RepositoryFail(err) => error(s"could not verify active issues: ${err.getMessage}", Cause.fail(err))
   }
 }

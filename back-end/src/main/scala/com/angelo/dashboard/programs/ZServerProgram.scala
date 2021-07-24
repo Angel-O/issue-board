@@ -2,14 +2,22 @@ package com.angelo.dashboard.programs
 
 import com.angelo.dashboard.layers.ZAppLayers.ServerEnvironment
 import com.angelo.dashboard.services.ZHttpServer
+import zio.ZIO
 import zio.logging.Logging.info
-import zio.{RIO, ZIO}
 
 object ZServerProgram {
 
-  /** A very minimal program */
-  val serveHttpRequests: RIO[ServerEnvironment, Nothing] =
+  final case class CannotCreateServer(cause: Throwable) extends Exception(cause)
+
+  /**
+   * A very minimal program. Sandboxing the effect because errors when binding the address aren't properly
+   * handled by the underlying libraries.
+   */
+  val serveHttpRequests: ZIO[ServerEnvironment, CannotCreateServer, Nothing] =
     ZHttpServer.service.flatMap {
-      _.managedServer.use(server => info(s"server running (secure: ${server.isSecure})") *> ZIO.never)
+      _.managedServer
+        .use(server => info(s"server running (secure: ${server.isSecure})") *> ZIO.never)
+        .sandbox
+        .catchAll(c => ZIO.fail(CannotCreateServer(c.squash)))
     }
 }

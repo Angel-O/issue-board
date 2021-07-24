@@ -26,7 +26,7 @@ object ZNotifier {
 
   sealed trait NotifierError                             extends NoStackTrace
   case class InvalidUri(override val getMessage: String) extends NotifierError
-  case class SlackUnreacheable(cause: Throwable)         extends NotifierError
+  case class SlackCallFail(cause: Throwable)             extends NotifierError
   case class RepositoryFail(cause: Throwable)            extends NotifierError
 
   val live: RLayer[ZConfig with ZHttpClient with Console with ZIssueRepo, ZNotifier] =
@@ -51,8 +51,8 @@ object ZNotifier {
                   .map(Request[Task](POST, _).withEntity(SlackPayload.liveMessage(minimumActiveIssues)))
                   .flatMap(sendRequest)
 
-              private def sendRequest(request: Request[Task]): IO[SlackUnreacheable, Unit] =
-                client.expect[Unit](request).mapError(SlackUnreacheable)
+              private def sendRequest(request: Request[Task]): IO[SlackCallFail, Unit] =
+                client.expect[Unit](request).mapError(SlackCallFail)
 
               private def enoughActiveIssues: IO[RepositoryFail, Boolean] =
                 repo.countActiveIssues.bimap(RepositoryFail, _ > minimumActiveIssues)
