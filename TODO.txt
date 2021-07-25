@@ -47,3 +47,5 @@
 - sort out aws credentials
 - share configuration between backend and frontend (resources folder inside shared project ???)
 - backend should not be accessible on the host when run via docker
+- rewrite backend using cats effect
+- rewrite backend using scala futures
