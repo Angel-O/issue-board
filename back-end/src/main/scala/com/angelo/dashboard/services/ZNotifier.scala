@@ -63,7 +63,7 @@ object ZNotifier {
   private val parseEndpoint: String => IO[InvalidUri, Uri] = endpoint =>
     ZIO
       .fromEither(Uri.fromString(endpoint))
-      .orElseFail(InvalidUri(s"invalid endpoint: $endpoint"))
+      .orElseFail(InvalidUri(s"invalid slack endpoint: $endpoint"))
 
   // accessor
   val service: URIO[ZNotifier, Service] = ZIO.service[Service]

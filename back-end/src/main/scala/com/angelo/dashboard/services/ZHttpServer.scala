@@ -50,7 +50,7 @@ object ZHttpServer extends Http4sDsl[Task] {
                 .bindHttp(cfg.port, cfg.host)
                 .resource
                 .toManagedZIO
-                .ensuring(info("server shut down"))
+                .ensuring(info("server shutting down"))
 
             private val onError: Throwable => UIO[Unit] =
               err => error(s"Error occurred: ${err.getMessage}", Cause.fail(err))

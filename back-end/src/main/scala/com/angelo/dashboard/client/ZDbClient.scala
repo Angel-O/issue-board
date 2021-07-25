@@ -15,7 +15,7 @@ object ZDbClient {
 
   type ZDbClient = Has[Service]
 
-  /** the result of this layer is not suspended to leverage the caching abilities of ZLayers */
+  /** the output of this layer is not suspended to leverage the caching abilities of ZLayers */
   type Service = DynamoDbClient
 
   /**
@@ -26,21 +26,20 @@ object ZDbClient {
     ZLayer.fromServiceManaged[ZLogger.Service, ZConfig, Throwable, Service] { logging =>
       import logging._
 
-      def acquireClient(cfg: DynamoDbConfig): Task[DynamoDbClient] =
-        ZIO.effect(
-          DynamoDbClient.builder
-            .region(Region.EU_WEST_1)
-            .endpointOverride(URI.create(cfg.endpoint))
-            .overrideConfiguration(clientConfiguration(cfg))
-            .build
-        )
-
-      def releaseClient(client: DynamoDbClient): UIO[Unit] =
-        ZIO.effect(client.close()).ignore <* info("closing db client connection")
-
-      def clientConfiguration(cfg: DynamoDbConfig) =
-        ClientOverrideConfiguration.builder.apiCallTimeout(fromScala(cfg.clientTimeout)).build
-
-      getDbConfig.toManaged_ flatMap (cfg => Managed.make(acquireClient(cfg))(releaseClient))
+      Managed
+        .fromAutoCloseable(getDbConfig >>> makeClient)
+        .ensuring(info("db client shutting down"))
     }
+
+  private val makeClient: RIO[DynamoDbConfig, DynamoDbClient] =
+    ZIO.access { cfg =>
+      DynamoDbClient.builder
+        .region(Region.EU_WEST_1)
+        .endpointOverride(URI.create(cfg.endpoint))
+        .overrideConfiguration(clientConfiguration(cfg))
+        .build
+    }
+
+  private def clientConfiguration(cfg: DynamoDbConfig) =
+    ClientOverrideConfiguration.builder.apiCallTimeout(fromScala(cfg.clientTimeout)).build
 }
