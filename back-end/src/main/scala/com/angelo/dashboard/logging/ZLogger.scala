@@ -16,7 +16,11 @@ object ZLogger {
     Slf4jLogger.make { (context, line) =>
       context
         .get(LogAnnotation.Cause)
-        .collect { case Cause.Fail(err: Throwable) => err.getClass.getSimpleName }
+        .map(_.untraced)
+        .collect {
+          case Cause.Fail(err: Throwable) => err.getClass.getSimpleName
+          case Cause.Die(err: Throwable)  => err.getClass.getSimpleName
+        }
         .map(msg => logFormat.format(msg, line))
         .getOrElse(line)
     }
