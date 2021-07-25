@@ -19,6 +19,7 @@ object ZBoot extends CatsApp with ZAppLayers {
     app
       .onExit(finalizer)
       .provideLayer(appDependencies)
+      //.untraced
       .exitCode
   }
 

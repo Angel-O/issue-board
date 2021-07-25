@@ -49,3 +49,4 @@
 - backend should not be accessible on the host when run via docker
 - rewrite backend using cats effect
 - rewrite backend using scala futures
+- investigate server finalizer not running when app is traced
