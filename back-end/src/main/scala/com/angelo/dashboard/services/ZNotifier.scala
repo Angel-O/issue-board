@@ -7,12 +7,9 @@ import com.angelo.dashboard.dao.ZIssueRepo
 import com.angelo.dashboard.dao.ZIssueRepo.ZIssueRepo
 import com.angelo.dashboard.model.SlackPayload
 import io.circe.syntax.EncoderOps
-import org.http4s.Method.POST
-import org.http4s.circe.CirceEntityCodec.{circeEntityDecoder, circeEntityEncoder}
-import org.http4s.{Request, Uri}
+import org.http4s.Uri
 import zio._
 import zio.console.Console
-import zio.interop.catz.taskConcurrentInstance
 
 import scala.util.control.NoStackTrace
 
@@ -47,12 +44,10 @@ object ZNotifier {
                 console.putStrLn(SlackPayload.mockMessage.asJson.noSpaces).ignore
 
               private def notifyOnSlack: IO[NotifierError, Unit] =
-                parseEndpoint(s"$endpoint/$token")
-                  .map(Request[Task](POST, _).withEntity(SlackPayload.liveMessage(minimumActiveIssues)))
-                  .flatMap(sendRequest)
+                parseEndpoint(s"$endpoint/$token").flatMap(sendRequest)
 
-              private def sendRequest(request: Request[Task]): IO[SlackCallFail, Unit] =
-                client.expect[Unit](request).mapError(SlackCallFail)
+              private def sendRequest(endpoint: Uri): IO[SlackCallFail, Unit] =
+                client.post(endpoint, SlackPayload.liveMessage(minimumActiveIssues)).mapError(SlackCallFail)
 
               private def enoughActiveIssues: IO[RepositoryFail, Boolean] =
                 repo.countActiveIssues.bimap(RepositoryFail, _ > minimumActiveIssues)

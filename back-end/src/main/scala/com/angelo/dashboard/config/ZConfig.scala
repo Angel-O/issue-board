@@ -30,8 +30,8 @@ object ZConfig {
   final case class DynamoDbConfig(
     issueTable: String,
     tableCreationMaxAttempts: Int,
-    initialReadCapacity: Long,
-    initialWriteCapacity: Long,
+    readCapacity: Long,
+    writeCapacity: Long,
     endpoint: String,
     clientTimeout: Duration
   )

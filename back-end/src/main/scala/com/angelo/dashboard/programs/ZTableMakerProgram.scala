@@ -1,10 +1,10 @@
 package com.angelo.dashboard.programs
 
+import com.angelo.dashboard.client.ZDbClient.TableAlreadyExists
 import com.angelo.dashboard.config.ZConfig.{getDbConfig, DynamoDbConfig}
 import com.angelo.dashboard.layers.ZAppLayers.TableMakerEnvironment
 import com.angelo.dashboard.logging.ZLogger.ZLogger
 import com.angelo.dashboard.services.ZIssueTableMaker
-import com.angelo.dashboard.services.ZIssueTableMaker._
 import zio.Schedule.Decision
 import zio.Schedule.Decision.{Continue, Done}
 import zio.clock.Clock

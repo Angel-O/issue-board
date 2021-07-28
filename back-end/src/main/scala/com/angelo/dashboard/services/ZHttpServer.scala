@@ -26,8 +26,8 @@ object ZHttpServer extends Http4sDsl[Task] {
   trait Service {
 
     /**
-     * unlike clients this resource is suspended, since there is no plan to cache it via ZLayers and reuse it by
-     * injecting it vertically into other layers
+     * unlike resources in the [[com.angelo.dashboard.resources]] package, this resource is suspended,
+     * since there is no plan to cache it via ZLayers and reuse it by injecting it vertically into other layers
      */
     def managedServer: TaskManaged[Server[Task]]
   }

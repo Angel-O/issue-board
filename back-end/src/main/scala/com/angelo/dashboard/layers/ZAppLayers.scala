@@ -36,11 +36,11 @@ trait ZAppLayers extends ZDefaultLayers { rtm: Runtime[ZEnv] =>
   val configAndLogsLayer: ULayer[ConfigAndLogger] = configLayer ++ loggingLayer
 
   // client
-  val dbClientLayer: TaskLayer[ZDbClient]     = configAndLogsLayer >>> ZDbClient.live
+  val dbClientLayer: TaskLayer[ZDbClient]     = (blockingLayer ++ configAndLogsLayer) >>> ZDbClient.live
   val httpClientLayer: TaskLayer[ZHttpClient] = (executionEnvLayer ++ loggingLayer) >>> ZHttpClient.live
 
   // dao
-  val repoLayer: TaskLayer[ZIssueRepo] = (dbClientLayer ++ blockingLayer ++ configAndLogsLayer) >>> ZIssueRepo.live
+  val repoLayer: TaskLayer[ZIssueRepo] = (dbClientLayer ++ configAndLogsLayer) >>> ZIssueRepo.live
 
   // http
   val baseRoutesLayer: ULayer[ZBaseRoutes]      = executionEnvLayer >>> ZBaseRoutes.live
@@ -49,7 +49,7 @@ trait ZAppLayers extends ZDefaultLayers { rtm: Runtime[ZEnv] =>
 
   // services
   val servicesSharedLayer = executionEnvLayer ++ configLayer
-  val dbTableMakerLayer   = (dbClientLayer ++ blockingLayer ++ configLayer) >>> ZIssueTableMaker.live
+  val dbTableMakerLayer   = dbClientLayer >>> ZIssueTableMaker.live
   val httpServerLayer     = (servicesSharedLayer ++ httpAppLayer ++ loggingLayer) >>> ZHttpServer.live
   val notifierLayer       = (servicesSharedLayer ++ consoleLayer ++ repoLayer ++ httpClientLayer) >>> ZNotifier.live
 

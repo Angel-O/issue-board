@@ -50,3 +50,5 @@
 - rewrite backend using cats effect
 - rewrite backend using scala futures
 - investigate server finalizer not running when app is traced
+- create db client facade
+- handle DB_CLIENT_TIMEOUT errors (first increase SERVER_CONNECTION_IDLE_TIMEOUT)
