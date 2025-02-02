@@ -1,3 +1,7 @@
+# Note
+
+Archiving. Reason being: this has evolved to become a bigger (private) project. Notable changes: migration to ZIO 2.0 & vite.js. Enjoy the archive & happy coding 🚀
+
 # issue-board
 
 ZIO/scala.js playground
